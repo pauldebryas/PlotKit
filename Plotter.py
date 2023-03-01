@@ -1,31 +1,18 @@
+import copy
 import os
 import ROOT
 import yaml
-ROOT.gROOT.SetBatch(True)
 
-python_dir = os.path.dirname(os.path.abspath(__file__))
-header_dir = os.path.join(python_dir, "include")
-
-ROOT.gInterpreter.Declare(f'#include "{header_dir}/PdfPrinter.h"')
-ROOT.gInterpreter.Declare(f'#include "{header_dir}/StackedPlotDescriptor.h"')
-
-def mk_smart_hist(hist):
-  use_log_y = False
-  max_y_sf = 1.5
-  divide_by_bin_width = False
-  return ROOT.root_ext.SmartHistogram('TH1D')(hist, use_log_y, max_y_sf, divide_by_bin_width)
-inputFile = ROOT.TFile.Open('hh_ttbb_input.root', 'READ')
-hist_signal = mk_smart_hist(inputFile.Get('hh_ttbb_2018_tauTau_0_13TeV/qqHH_CV_1_C2V_1_kl_1_ttbb'))
-hist_DY = mk_smart_hist(inputFile.Get('hh_ttbb_2018_tauTau_0_13TeV/DY_0b_100JPt'))
-hist_TT = mk_smart_hist(inputFile.Get('hh_ttbb_2018_tauTau_0_13TeV/TT'))
-hist_data = mk_smart_hist(inputFile.Get('hh_ttbb_2018_tauTau_0_13TeV/data_obs'))
-
-outputFile = 'output.pdf'
-
-
-
-with open('config/cms_stacked.yaml', 'r') as f:
-  config = yaml.safe_load(f)
+def mk_smart_hist(hist, hist_desc):
+  use_log_y = hist_desc.get('use_log_y', False)
+  max_y_sf = hist_desc.get('max_y_sf', 1.5)
+  divide_by_bin_width = hist_desc.get('divide_by_bin_width', False)
+  smart_hist = ROOT.root_ext.SmartHistogram('TH1D')(hist, use_log_y, max_y_sf, divide_by_bin_width)
+  if 'x_title' in hist_desc:
+    smart_hist.GetXaxis().SetTitle(hist_desc['x_title'])
+  if 'y_title' in hist_desc:
+    smart_hist.GetYaxis().SetTitle(hist_desc['y_title'])
+  return smart_hist
 
 def to_str(value):
   if isinstance(value, bool):
@@ -50,25 +37,99 @@ def LoadPageOptions(entry):
   item = ToItem(entry)
   return ROOT.root_ext.draw_options.Page(item)
 
-sgn_hist_opt = LoadHistOptions(config['sgn_hist'])
-bkg_hist_opt = LoadHistOptions(config['bkg_hist'])
-data_hist_opt = LoadHistOptions(config['data_hist'])
-bkg_unc_hist_opt = LoadHistOptions(config['bkg_unc_hist'])
+class Plotter(object):
+  initialized = False
 
-page = LoadPageOptions(config['page_setup'])
+  def __init__(self, page_cfg, page_cfg_custom, hist_cfg, inputs_cfg):
+    if not Plotter.initialized:
+      ROOT.gROOT.SetBatch(True)
+      python_dir = os.path.dirname(os.path.abspath(__file__))
+      header_dir = os.path.join(python_dir, "include")
 
-items = ROOT.root_ext.draw_options.ItemCollection()
-for element in config['page_setup']['text_boxes'] + [ config['page_setup']['legend'] ]:
-  items[element] = ToItem(config[element])
+      ROOT.gInterpreter.Declare(f'#include "{header_dir}/PdfPrinter.h"')
+      ROOT.gInterpreter.Declare(f'#include "{header_dir}/StackedPlotDescriptor.h"')
+      Plotter.initialized = True
 
-printer = ROOT.root_ext.PdfPrinter(outputFile, items, page)
+    with open(page_cfg, 'r') as f:
+      self.page_cfg = yaml.safe_load(f)
+    if page_cfg_custom:
+      with open(page_cfg_custom, 'r') as f:
+        self.page_cfg.update(yaml.safe_load(f))
+    with open(hist_cfg, 'r') as f:
+      self.hist_cfg = yaml.safe_load(f)
+    with open(inputs_cfg, 'r') as f:
+      self.inputs_cfg = yaml.safe_load(f)
+
+    self.sgn_hist_opt = LoadHistOptions(self.page_cfg['sgn_hist'])
+    self.bkg_hist_opt = LoadHistOptions(self.page_cfg['bkg_hist'])
+    self.data_hist_opt = LoadHistOptions(self.page_cfg['data_hist'])
+    self.bkg_unc_hist_opt = LoadHistOptions(self.page_cfg['bkg_unc_hist'])
+    self.page = LoadPageOptions(self.page_cfg['page_setup'])
 
 
+  def plot(self, hist_name, histograms, output_file, custom=None):
+    page_cfg = copy.deepcopy(self.page_cfg)
+    if custom:
+      for key, value in custom.items():
+        page_cfg[key]['text'] = value
 
-desc = ROOT.root_ext.StackedPlotDescriptor(page, sgn_hist_opt, bkg_hist_opt, data_hist_opt, bkg_unc_hist_opt)
-desc.AddSignalHistogram(hist_signal, 'HH', ROOT.root_ext.Color(ROOT.kRed), 100)
-desc.AddBackgroundHistogram(hist_DY, 'DY', ROOT.root_ext.Color(ROOT.kBlue))
-desc.AddBackgroundHistogram(hist_TT, 'TT', ROOT.root_ext.Color(ROOT.kGreen))
-desc.AddDataHistogram(hist_data, 'Data')
+    items = ROOT.root_ext.draw_options.ItemCollection()
+    for element in page_cfg['page_setup']['text_boxes'] + [ page_cfg['page_setup']['legend'] ]:
+      items[element] = ToItem(page_cfg[element])
+    printer = ROOT.root_ext.PdfPrinter(output_file, items, self.page)
 
-printer.Print('MT2', desc, True)
+    desc = ROOT.root_ext.StackedPlotDescriptor(self.page, self.sgn_hist_opt, self.bkg_hist_opt, self.data_hist_opt,
+                                               self.bkg_unc_hist_opt)
+    smart_hists = {}
+    for input in self.inputs_cfg:
+      name = input['name']
+      smart_hists[name] = mk_smart_hist(histograms[name], self.hist_cfg[hist_name])
+      hist_type = input.get('type', 'background')
+      if hist_type == 'signal':
+        desc.AddSignalHistogram(smart_hists[name], input['title'], ROOT.root_ext.Color.Parse(input['color']),
+                                input.get('scale', 1.))
+      elif hist_type == 'background':
+        desc.AddBackgroundHistogram(smart_hists[name], input['title'], ROOT.root_ext.Color.Parse(input['color']))
+      elif hist_type == 'data':
+        desc.AddDataHistogram(smart_hists[name], input['title'])
+      else:
+        raise RuntimeError(f'Unknown histogram type: {hist_type}')
+    printer.Print(hist_name, desc, True)
+
+def LoadHistograms(input_file):
+  inputFile = ROOT.TFile.Open(input_file, 'READ')
+  hists = {}
+  hists['qqHH'] = inputFile.Get('hh_ttbb_2018_tauTau_0_13TeV/qqHH_CV_1_C2V_1_kl_1_ttbb')
+  for n_b in range(3):
+    for pt_bin in [ 0, 10, 30, 50, 100, 200 ]:
+      hist = inputFile.Get(f'hh_ttbb_2018_tauTau_0_13TeV/DY_{n_b}b_{pt_bin}JPt')
+      if 'DY' not in hists:
+        hists['DY'] = hist.Clone()
+      else:
+        hists['DY'].Add(hist)
+  hists['W'] = inputFile.Get('hh_ttbb_2018_tauTau_0_13TeV/W')
+  hists['TT'] = inputFile.Get('hh_ttbb_2018_tauTau_0_13TeV/TT')
+  hists['QCD'] = inputFile.Get('hh_ttbb_2018_tauTau_0_13TeV/QCD')
+  hists['data'] = inputFile.Get('hh_ttbb_2018_tauTau_0_13TeV/data_obs')
+  return hists, inputFile
+
+if __name__ == "__main__":
+  import argparse
+  parser = argparse.ArgumentParser(description='Plotting tool.')
+  parser.add_argument('--page-cfg', required=True, type=str, help="Page style config file")
+  parser.add_argument('--page-cfg-custom', required=False, default=None, type=str,
+                      help="Additional page style customisations")
+  parser.add_argument('--hist-cfg', required=True, type=str, help="Histogram style config file")
+  parser.add_argument('--inputs-cfg', required=True, type=str, help="Inputs style config file")
+  parser.add_argument('--hist-name', required=True, type=str, help="Histogram name")
+  parser.add_argument('--custom', required=False, default=None, type=str, help="Customizations in format key1=value1,key2=value2,...")
+  parser.add_argument('--output', required=True, type=str, help="Output pdf file.")
+  parser.add_argument('--verbose', required=False, type=int, default=0, help="verbosity level")
+  parser.add_argument('root_file', type=str, nargs=1, help="input root file")
+  args = parser.parse_args()
+
+  plotter = Plotter(page_cfg=args.page_cfg, page_cfg_custom=args.page_cfg_custom, hist_cfg=args.hist_cfg,
+                    inputs_cfg=args.inputs_cfg)
+  hists, inputFile = LoadHistograms(args.root_file[0])
+  custom = None if args.custom is None else dict(item.split('=') for item in args.custom.split(','))
+  plotter.plot(args.hist_name, hists, args.output, custom=custom)

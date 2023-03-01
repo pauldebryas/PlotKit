@@ -54,7 +54,6 @@ public:
                         page_opt.main_pad.right_top_y() - page_opt.main_pad.left_bottom_y()
                         - page_opt.margins.bottom() - page_opt.margins.top());
 
-
         if(page_opt.legend_opt.size()) {
             if(!opt_items.count(page_opt.legend_opt))
                 throw exception("Legend options '%1%' not found.") % page_opt.legend_opt;

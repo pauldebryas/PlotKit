@@ -123,6 +123,7 @@ struct Legend : PositionedElement {
 
   Legend() {}
   explicit Legend(const Item& opt)
+    : PositionedElement(opt)
   {
     READ_ALL(size, fill_color, fill_style, border_size, text_size, font)
   }
@@ -139,6 +140,7 @@ struct Text : PositionedElement {
 
   Text() {}
   explicit Text(const Item& opt)
+    : PositionedElement(opt)
   {
     READ_ALL(text_size, line_spacing, angle, font, align, color)
     std::string text_str;

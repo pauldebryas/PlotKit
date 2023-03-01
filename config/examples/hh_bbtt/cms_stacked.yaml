@@ -39,7 +39,7 @@ page_setup:
 
 legend:
   pos_ref: inner_right_top
-  pos: [ 0.58, 0.44 ]
+  pos: [ 0.48, 0.44 ]
   size: [ 0.56, 0.42 ]
   fill_color: kWhite
   fill_style: 0
@@ -74,14 +74,6 @@ cat_text:
   pos: [0, -0.1 ]
   text_size: 0.03
   font: 62
-
-lumi_text:
-  text: "fb-1"
-  pos_ref: inner_right_top
-  pos: [ 0, -0.03 ]
-  text_size: 0.035
-  font: 42
-  align: right_bottom
 
 bkg_hist:
   fill_style: 1001

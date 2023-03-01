@@ -1,0 +1,19 @@
+- name: DY
+  title: "DY #rightarrow ll + jets"
+  color: kYellow
+- name: TT
+  title: t#bar{t}
+  color: kRed-3
+- name: W
+  title: "W #rightarrow l#nu + jets"
+  color: kViolet-6
+- name: QCD
+  title: QCD
+  color: kPink+1
+- name: qqHH
+  title: "qqHH #rightarrow bb#tau#tau"
+  type: signal
+  color: kBlack
+- name: data
+  title: "Data"
+  type: data

@@ -448,6 +448,15 @@ public:
         return Color(TColor::GetColorTransparent(GetColorId(), alpha));
     }
 
+    static Color Parse(const std::string& name)
+    {
+        EColor e_color;
+        int shift;
+        if(ReferenceColorCollection::TryParse(name, e_color, shift))
+            return Color(ReferenceColorCollection::ToColorId(e_color, shift));
+        return Color(name);
+    }
+
 private:
     static void CheckComponent(const std::string& name, int value)
     {
