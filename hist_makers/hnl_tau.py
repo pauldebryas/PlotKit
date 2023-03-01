@@ -60,7 +60,13 @@ def make_histograms(input_dir, hist_name=None, hist_cfg=None):
   hist_desc = hist_cfg[hist_name]
   branch = hist_name
   for input_name, input_files in inputs.items():
-    hists[input_name] = hist.Hist.new.Variable(hist_desc['x_bins'], name='x').Weight()
+    x_bins = hist_desc['x_bins']
+    if isinstance(x_bins, list):
+      hists[input_name] = hist.Hist.new.Variable(x_bins, name='x').Weight()
+    else:
+      n_bins, bin_range = x_bins.split('|')
+      start,stop = bin_range.split(':')
+      hists[input_name] = hist.Hist.new.Regular(int(n_bins), float(start), float(stop), name='x').Weight()
     for file_name in input_files:
       file = uproot.open(os.path.join(input_dir, file_name))
       tree = file['Event']
