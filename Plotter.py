@@ -98,23 +98,6 @@ class Plotter(object):
         raise RuntimeError(f'Unknown histogram type: {hist_type}')
     printer.Print(hist_name, desc, True)
 
-def LoadHistograms(input_file):
-  inputFile = ROOT.TFile.Open(input_file, 'READ')
-  hists = {}
-  hists['qqHH'] = inputFile.Get('hh_ttbb_2018_tauTau_0_13TeV/qqHH_CV_1_C2V_1_kl_1_ttbb')
-  for n_b in range(3):
-    for pt_bin in [ 0, 10, 30, 50, 100, 200 ]:
-      hist = inputFile.Get(f'hh_ttbb_2018_tauTau_0_13TeV/DY_{n_b}b_{pt_bin}JPt')
-      if 'DY' not in hists:
-        hists['DY'] = hist.Clone()
-      else:
-        hists['DY'].Add(hist)
-  hists['W'] = inputFile.Get('hh_ttbb_2018_tauTau_0_13TeV/W')
-  hists['TT'] = inputFile.Get('hh_ttbb_2018_tauTau_0_13TeV/TT')
-  hists['QCD'] = inputFile.Get('hh_ttbb_2018_tauTau_0_13TeV/QCD')
-  hists['data'] = inputFile.Get('hh_ttbb_2018_tauTau_0_13TeV/data_obs')
-  return hists, inputFile
-
 def load(module_file):
   if not os.path.exists(module_file):
     raise RuntimeError(f"Cannot find path to {module_file}.")
