@@ -1,6 +1,8 @@
 import copy
+import importlib
 import os
 import ROOT
+import sys
 import yaml
 
 def mk_smart_hist(hist, hist_desc):
@@ -113,6 +115,17 @@ def LoadHistograms(input_file):
   hists['data'] = inputFile.Get('hh_ttbb_2018_tauTau_0_13TeV/data_obs')
   return hists, inputFile
 
+def load(module_file):
+  if not os.path.exists(module_file):
+    raise RuntimeError(f"Cannot find path to {module_file}.")
+
+  module_name, module_ext = os.path.splitext(module_file)
+  spec = importlib.util.spec_from_file_location(module_name, module_file)
+  module = importlib.util.module_from_spec(spec)
+  sys.modules[module_name] = module
+  spec.loader.exec_module(module)
+  return module
+
 if __name__ == "__main__":
   import argparse
   parser = argparse.ArgumentParser(description='Plotting tool.')
@@ -124,12 +137,15 @@ if __name__ == "__main__":
   parser.add_argument('--hist-name', required=True, type=str, help="Histogram name")
   parser.add_argument('--custom', required=False, default=None, type=str, help="Customizations in format key1=value1,key2=value2,...")
   parser.add_argument('--output', required=True, type=str, help="Output pdf file.")
+  parser.add_argument('--hist-maker', required=True, type=str, help="Path to histogram maker module.")
   parser.add_argument('--verbose', required=False, type=int, default=0, help="verbosity level")
-  parser.add_argument('root_file', type=str, nargs=1, help="input root file")
+  parser.add_argument('hist_maker_args', type=str, nargs='*', help="hist maker arguments")
   args = parser.parse_args()
+
 
   plotter = Plotter(page_cfg=args.page_cfg, page_cfg_custom=args.page_cfg_custom, hist_cfg=args.hist_cfg,
                     inputs_cfg=args.inputs_cfg)
-  hists, inputFile = LoadHistograms(args.root_file[0])
+  hist_maker = load(args.hist_maker)
+  hists = hist_maker.make_histograms(*args.hist_maker_args, hist_name=args.hist_name, hist_cfg=plotter.hist_cfg)
   custom = None if args.custom is None else dict(item.split('=') for item in args.custom.split(','))
   plotter.plot(args.hist_name, hists, args.output, custom=custom)
