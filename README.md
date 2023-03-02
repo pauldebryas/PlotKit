@@ -6,6 +6,13 @@
 git clone git@github.com:kandrosov/PlotKit.git
 ```
 
+Example of a minimal conda environment setup:
+```sh
+conda create -n plot python=3.9
+conda activate plot
+conda install boost hist ROOT uproot
+```
+
 # How to run
 
 Example how to run from a command line:
