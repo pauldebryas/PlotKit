@@ -41,16 +41,6 @@ def LoadPageOptions(entry):
 
 class Plotter(object):
   initialized = False
-  def read_config(self, config):
-      if type(config)==str:
-        with open(config, 'r') as f:
-          return yaml.safe_load(f)
-      elif type(config) == dict:
-        return config
-      elif type(config) == list:
-        return config
-      else:
-        raise RuntimeError(f'Unknown config type: {type(config)}')
 
   def __init__(self, page_cfg, page_cfg_custom, hist_cfg, inputs_cfg):
     if not Plotter.initialized:
@@ -62,13 +52,15 @@ class Plotter(object):
       ROOT.gInterpreter.Declare(f'#include "{header_dir}/StackedPlotDescriptor.h"')
       Plotter.initialized = True
 
-
-
-    self.page_cfg = self.read_config(page_cfg)
+    with open(page_cfg, 'r') as f:
+      self.page_cfg = yaml.safe_load(f)
     if page_cfg_custom:
-      self.page_cfg.update(self.read_config(page_cfg_custom))
-    self.hist_cfg = self.read_config(hist_cfg)
-    self.inputs_cfg = self.read_config(inputs_cfg)
+      with open(page_cfg_custom, 'r') as f:
+        self.page_cfg.update(yaml.safe_load(f))
+    with open(hist_cfg, 'r') as f:
+      self.hist_cfg = yaml.safe_load(f)
+    with open(inputs_cfg, 'r') as f:
+      self.inputs_cfg = yaml.safe_load(f)
 
     self.sgn_hist_opt = LoadHistOptions(self.page_cfg['sgn_hist'])
     self.bkg_hist_opt = LoadHistOptions(self.page_cfg['bkg_hist'])
