@@ -29,3 +29,11 @@ pt_sum_tem:
   use_log_y: False
   max_y_sf: 1.5
   divide_by_bin_width: False
+
+Tau_Jet_pt:
+  x_bins: "10|20:100"
+  x_title: "Jet matching #tau p_{T} (GeV)"
+  y_title: "Events"
+  use_log_y: False
+  max_y_sf: 1.5
+  divide_by_bin_width: False

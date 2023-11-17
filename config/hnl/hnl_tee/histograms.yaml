@@ -29,3 +29,19 @@ pt_sum_tee:
   use_log_y: False
   max_y_sf: 1.5
   divide_by_bin_width: False
+
+Tau_Jet_pt:
+  x_bins: "10|20:100"
+  x_title: "Jet matching #tau p_{T} (GeV)"
+  y_title: "Events"
+  use_log_y: False
+  max_y_sf: 1.5
+  divide_by_bin_width: False
+
+Tau_decayMode:
+  x_bins: "13|0:13"
+  x_title: "Tau decay mode"
+  y_title: "Events"
+  use_log_y: False
+  max_y_sf: 1.5
+  divide_by_bin_width: False

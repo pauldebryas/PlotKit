@@ -10,3 +10,7 @@
   type: data
   files:
   - SingleMuon_2018_anatuple.root
+- name: ExtrapolatedBackground
+  title: "Background (extrapolated)"
+  type: background
+  color: kCyan-3

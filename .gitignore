@@ -1,4 +1,12 @@
 /output
+/tmp
 .DS_Store
 *.pyc
 __pycache__
+/jobs
+/logs
+.law
+FakeRate/figures
+FakeRate/results
+GBReweighter/figures
+GBReweighter/results

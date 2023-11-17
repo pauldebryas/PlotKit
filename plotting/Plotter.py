@@ -45,9 +45,7 @@ class Plotter(object):
   def __init__(self, page_cfg, page_cfg_custom, hist_cfg, inputs_cfg):
     if not Plotter.initialized:
       ROOT.gROOT.SetBatch(True)
-      python_dir = os.path.dirname(os.path.abspath(__file__))
-      header_dir = os.path.join(python_dir, "include")
-
+      header_dir = os.path.join(os.getenv("RUN_PATH"), "include")
       ROOT.gInterpreter.Declare(f'#include "{header_dir}/PdfPrinter.h"')
       ROOT.gInterpreter.Declare(f'#include "{header_dir}/StackedPlotDescriptor.h"')
       Plotter.initialized = True

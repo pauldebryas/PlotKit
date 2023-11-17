@@ -1,0 +1,81 @@
+- name: DY
+  title: "DY #rightarrow ll + jets"
+  color: kYellow
+  files:
+  - DYJetsToLL_M-50_anatuple.root
+  - DYJetsToLL_0J_anatuple.root
+  - DYJetsToLL_1J_anatuple.root
+  - DYJetsToLL_2J_anatuple.root
+  - DYJetsToLL_LHEFilterPtZ-0To50_anatuple.root
+  - DYJetsToLL_LHEFilterPtZ-50To100_anatuple.root
+  - DYJetsToLL_LHEFilterPtZ-100To250_anatuple.root
+  - DYJetsToLL_LHEFilterPtZ-250To400_anatuple.root
+  - DYJetsToLL_LHEFilterPtZ-400To650_anatuple.root
+  - DYJetsToLL_LHEFilterPtZ-650ToInf_anatuple.root
+- name: TT
+  title: t#bar{t}
+  color: kRed-3
+  files:
+  - TTTo2L2Nu_anatuple.root
+  - TTToSemiLeptonic_anatuple.root
+  - TTToHadronic_anatuple.root
+- name: WJets
+  title: "W #rightarrow l#nu + jets"
+  color: kViolet-6
+  files:
+  - WJetsToLNu_anatuple.root
+  - W1JetsToLNu_anatuple.root
+  - W2JetsToLNu_anatuple.root
+  - W3JetsToLNu_anatuple.root
+  - W4JetsToLNu_anatuple.root
+  - WJetsToLNu_HT-70To100_anatuple.root
+  - WJetsToLNu_HT-100To200_anatuple.root
+  - WJetsToLNu_HT-200To400_anatuple.root
+  - WJetsToLNu_HT-400To600_anatuple.root
+  - WJetsToLNu_HT-600To800_anatuple.root
+  - WJetsToLNu_HT-800To1200_anatuple.root
+  - WJetsToLNu_HT-1200To2500_anatuple.root
+  - WJetsToLNu_HT-2500ToInf_anatuple.root
+- name: other_background
+  title: "other backgrounds"
+  color: kBlue-3
+  files:
+  - ZZ_anatuple.root
+  - WW_anatuple.root
+  - WZ_anatuple.root
+  - EWKWMinus2Jets_WToLNu_M-50_anatuple.root
+  - EWKWPlus2Jets_WToLNu_M-50_anatuple.root
+  - EWKZ2Jets_ZToLL_M-50_anatuple.root
+  - ST_t-channel_antitop_4f_InclusiveDecays_anatuple.root
+  - ST_t-channel_top_4f_InclusiveDecays_anatuple.root
+  - ST_tW_antitop_5f_inclusiveDecays_anatuple.root
+  - ST_tW_top_5f_inclusiveDecays_anatuple.root
+  - TTWJetsToLNu_anatuple.root
+  - TTWW_anatuple.root
+  - TTWZ_anatuple.root
+  - TTZToLLNuNu_M-10_anatuple.root
+  - TTZZ_anatuple.root
+  - WWW_anatuple.root
+  - WWZ_anatuple.root
+  - WZZ_anatuple.root
+  - ZZZ_anatuple.root
+  - ttHToTauTau_anatuple.root
+  - ZHToTauTau_anatuple.root
+  - GluGluHToTauTau_anatuple.root
+  - WminusHToTauTau_anatuple.root
+  - WplusHToTauTau_anatuple.root
+#  - WToTauNu_M-200_anatuple.root
+#  - WToMuNu_M-200_anatuple.root
+- name: HNL
+  title: "HNL #rightarrow 3l m_{HNL} = 300 GeV (x 0.5)"
+  type: signal
+  color: kBlack
+  scale: 0.5
+  files:
+  - HNL_tau_M-300_anatuple.root
+- name: data
+  title: "Data"
+  type: data
+  files:
+  - EGamma_2018_anatuple.root
+  #- Tau_2018_anatuple.root
