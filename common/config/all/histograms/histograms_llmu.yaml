@@ -1,0 +1,17 @@
+Muon_ptcorr:
+  x_bins: "config" #[15.0, 18.797855377197266, 23.009265899658203, 29.480321884155273, 44.808840942382815, 100.0]
+  x_title: "#mu p_{T}^{corr} (GeV)"
+  y_title: "Events"
+  use_log_y: False
+  max_y_sf: 1.5
+  divide_by_bin_width: False
+  flow: True
+
+Muon_abseta:
+  x_bins: "config" #[0.0, 0.44071044921875, 0.8639892578125, 1.316552734375, 1.7928222656250001, 2.5]
+  x_title: "#mu |#eta|"
+  y_title: "Events"
+  use_log_y: False
+  max_y_sf: 1.5
+  divide_by_bin_width: False
+  flow: False

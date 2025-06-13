@@ -1,0 +1,7 @@
+- name: HNL
+  title: "HNL #rightarrow 3l m_{HNL} = 300 GeV (rescale)"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-300_anatuple.root

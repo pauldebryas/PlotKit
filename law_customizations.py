@@ -1,4 +1,5 @@
 import law
+import luigi
 import math
 import os
 law.contrib.load("htcondor")
@@ -18,7 +19,19 @@ class HTCondorWorkflow(law.htcondor.HTCondorWorkflow):
     the CERN HTCondor environment. In most cases, like in this example, only a minimal amount of
     configuration is required.
     """
-    max_runtime = law.DurationParameter(default=12.0, unit="h", significant=False, description="maximum runtime (default unit is hours). Default: 12h")
+
+    max_runtime = law.DurationParameter(
+        default=12.0, 
+        unit="h", 
+        significant=False, 
+        description="maximum runtime, default unit is hours, default: 12"
+    )
+
+    transfer_logs = luigi.BoolParameter(
+        default=True,
+        significant=False,
+        description="transfer job logs to the output directory; default: True",
+    )
 
     def htcondor_output_directory(self):
         # the directory where submission meta data should be stored
@@ -37,14 +50,14 @@ class HTCondorWorkflow(law.htcondor.HTCondorWorkflow):
         # render_variables are rendered into all files sent with a job
         config.render_variables["RUN_PATH"] = global_path
         # force to run on CC7, http://batchdocs.web.cern.ch/batchdocs/local/submit.html#os-choice
-        config.custom_content.append(("requirements", "(OpSysAndVer =?= \"CentOS7\")"))
+        #config.custom_content.append(("requirements", "(OpSysAndVer =?= \"CentOS9\")"))
         # maximum runtime
         config.custom_content.append(("+MaxRuntime", int(math.floor(self.max_runtime * 3600)) - 1))
         # copy the entire environment
         config.custom_content.append(("getenv", "true"))
-        log_path = os.path.join(global_path, "logs")
+        log_path = os.path.join(global_path, "jobs", "logs")
         os.makedirs(log_path, exist_ok=True)
-        config.custom_content.append(("log", os.path.join(log_path, f'job.$(ClusterId).{branches}.log')))
-        config.custom_content.append(("output", os.path.join(log_path, f'job.$(ClusterId).{branches}.out')))
-        config.custom_content.append(("error", os.path.join(log_path, f'job.$(ClusterId).{branches}.err')))
+        config.custom_content.append(("log", os.path.join(log_path, f'job.$(ClusterId).{job_num}.log')))
+        config.custom_content.append(("output", os.path.join(log_path, f'job.$(ClusterId).{job_num}.out')))
+        config.custom_content.append(("error", os.path.join(log_path, f'job.$(ClusterId).{job_num}.err')))
         return config

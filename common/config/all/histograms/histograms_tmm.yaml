@@ -1,0 +1,80 @@
+#BDT ---------------------------------------------------------------------------------
+# tmm_eta_sumw:
+#   x_bins: "auto|-2:2"
+#   x_title: "#frac{1}{3} #Sigma_{i} #eta_{l_i} "
+#   y_title: "Events"
+#   use_log_y: False
+#   max_y_sf: 1.5
+#   divide_by_bin_width: False
+
+mT_total_tmm:
+  x_bins: "auto|50:700"
+  x_title: "m^{T}_{total} (GeV)"
+  y_title: "Events"
+  use_log_y: False
+  max_y_sf: 1.5
+  divide_by_bin_width: False
+  flow: True
+
+pt_sum_tmm:
+  x_bins: "auto|60:400"
+  x_title: "#Sigma_{i}^{#tau_{h} #mu #mu} p_{T}^{i} (GeV)"
+  y_title: "Events"
+  use_log_y: False
+  max_y_sf: 1.5
+  divide_by_bin_width: False
+  flow: True
+
+DNNscore:
+  x_bins: "auto|0:1"
+  x_title: "DNN score for m_{HNL}="
+  y_title: "Events"
+  use_log_y: False
+  max_y_sf: 1.5
+  divide_by_bin_width: False
+
+# mT_mumu:
+#   x_bins: "auto|0:250"
+#   x_title: "m^{T}_{#mu #mu} (GeV)"
+#   y_title: "Events"
+#   use_log_y: False
+#   max_y_sf: 1.5
+#   divide_by_bin_width: False
+#   flow: True
+
+# dr_mumu:
+#   x_bins: "auto|0:5"
+#   x_title: "#Delta R_{#mu #mu} (rad)"
+#   y_title: "Events"
+#   use_log_y: False
+#   max_y_sf: 1.5
+#   divide_by_bin_width: False
+#   flow: True
+# #---------------------------------------------------------------------------------
+# Tau_pt:
+#   x_bins: "10|20:100"
+#   x_title: "#tau_{h}^{1} p_{T} (GeV)"
+#   y_title: "Events"
+#   use_log_y: False
+#   max_y_sf: 1.5
+#   divide_by_bin_width: False
+#   flow: True
+
+# Muon1_pt:
+#   x_bins: "10|15:150"
+#   x_title: "#mu^{1} p_{T} (GeV)"
+#   y_title: "Events"
+#   use_log_y: False
+#   max_y_sf: 1.5
+#   divide_by_bin_width: False
+#   flow: True
+
+# Muon2_pt:
+#   x_bins: "10|15:100"
+#   x_title: "#mu^{2} p_{T} (GeV)"
+#   y_title: "Events"
+#   use_log_y: False
+#   max_y_sf: 1.5
+#   divide_by_bin_width: False
+#   flow: True
+

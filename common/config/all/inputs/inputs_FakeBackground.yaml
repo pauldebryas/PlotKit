@@ -1,0 +1,4 @@
+- name: FakeBackground
+  title: "Fake Background (extrapolated)"
+  type: background
+  color: kCyan-3

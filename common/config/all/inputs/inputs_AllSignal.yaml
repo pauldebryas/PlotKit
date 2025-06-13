@@ -1,0 +1,161 @@
+- name: HNL20
+  title: "HNL #rightarrow 3l m_{HNL} = 20 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-20_anatuple.root
+- name: HNL30
+  title: "HNL #rightarrow 3l m_{HNL} = 30 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-30_anatuple.root
+- name: HNL40
+  title: "HNL #rightarrow 3l m_{HNL} = 40 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-40_anatuple.root
+- name: HNL50
+  title: "HNL #rightarrow 3l m_{HNL} = 50 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-50_anatuple.root
+- name: HNL60
+  title: "HNL #rightarrow 3l m_{HNL} = 60 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-60_anatuple.root
+- name: HNL70
+  title: "HNL #rightarrow 3l m_{HNL} = 70 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-70_anatuple.root
+- name: HNL75
+  title: "HNL #rightarrow 3l m_{HNL} = 75 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-75_anatuple.root
+- name: HNL85
+  title: "HNL #rightarrow 3l m_{HNL} = 85 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-85_anatuple.root
+- name: HNL100
+  title: "HNL #rightarrow 3l m_{HNL} = 100 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-100_anatuple.root
+- name: HNL125
+  title: "HNL #rightarrow 3l m_{HNL} = 125 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-125_anatuple.root
+- name: HNL150
+  title: "HNL #rightarrow 3l m_{HNL} = 150 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-150_anatuple.root
+- name: HNL200
+  title: "HNL #rightarrow 3l m_{HNL} = 200 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-200_anatuple.root
+- name: HNL250
+  title: "HNL #rightarrow 3l m_{HNL} = 250 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-250_anatuple.root
+- name: HNL300
+  title: "HNL #rightarrow 3l m_{HNL} = 300 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-300_anatuple.root
+- name: HNL350
+  title: "HNL #rightarrow 3l m_{HNL} = 350 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-350_anatuple.root
+- name: HNL400
+  title: "HNL #rightarrow 3l m_{HNL} = 400 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-400_anatuple.root
+- name: HNL450
+  title: "HNL #rightarrow 3l m_{HNL} = 450 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-450_anatuple.root
+- name: HNL500
+  title: "HNL #rightarrow 3l m_{HNL} = 500 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-500_anatuple.root
+- name: HNL600
+  title: "HNL #rightarrow 3l m_{HNL} = 600 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-600_anatuple.root
+- name: HNL700
+  title: "HNL #rightarrow 3l m_{HNL} = 700 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-700_anatuple.root
+- name: HNL800
+  title: "HNL #rightarrow 3l m_{HNL} = 800 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-800_anatuple.root
+- name: HNL900
+  title: "HNL #rightarrow 3l m_{HNL} = 900 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-900_anatuple.root
+- name: HNL1000
+  title: "HNL #rightarrow 3l m_{HNL} = 1000 GeV"
+  type: signal
+  color: kBlack
+  scale: 1.
+  files:
+  - HNL_tau_M-1000_anatuple.root

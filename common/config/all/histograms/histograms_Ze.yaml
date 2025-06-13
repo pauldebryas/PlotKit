@@ -1,0 +1,17 @@
+Electron_ptcorr:
+  x_bins: "config" #[5.943497180938721, 12.043071937561034, 15.37296848297119, 21.025665283203125, 35.79394912719726, 100.]
+  x_title: "e p_{T}^{corr} (GeV)"
+  y_title: "Events"
+  use_log_y: False
+  max_y_sf: 1.5
+  divide_by_bin_width: False
+  flow: True
+
+Electron_abseta:
+  x_bins: "config" #[0.0, 0.51025390625, 1.0385742187499998, 1.590185546875, 2.009765625, 2.5]
+  x_title: "e |#eta|"
+  y_title: "Events"
+  use_log_y: False
+  max_y_sf: 1.5
+  divide_by_bin_width: False
+  flow: False

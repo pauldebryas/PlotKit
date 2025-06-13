@@ -1,0 +1,64 @@
+#print or not events in App Region
+print_ARinfo: True
+#DNN config
+ModelName: AllYears_AllChannels
+# FR config for LL
+tag_LL: LightLeptFFV2
+#config for the different channels
+lepton:
+  tem:
+    lepton1:
+      name: 'Tau'
+      type: 'Tau'
+    lepton2:
+      name: 'Electron'
+      type: 'Electron'
+    lepton3:
+      name: 'Muon'
+      type: 'Muon'
+  ttm:
+    lepton1:
+      name: 'Tau1'
+      type: 'Tau'
+    lepton2:
+      name: 'Tau2'
+      type: 'Tau'
+    lepton3:
+      name: 'Muon'
+      type: 'Muon'
+  tte:
+    lepton1:
+      name: 'Tau1'
+      type: 'Tau'
+    lepton2:
+      name: 'Tau2'
+      type: 'Tau'
+    lepton3:
+      name: 'Electron'
+      type: 'Electron'
+  tmm:
+    lepton1:
+      name: 'Tau'
+      type: 'Tau'
+    lepton2:
+      name: 'Muon1'
+      type: 'Muon'
+    lepton3:
+      name: 'Muon2'
+      type: 'Muon'
+  tee:
+    lepton1:
+      name: 'Tau'
+      type: 'Tau'
+    lepton2:
+      name: 'Electron1'
+      type: 'Electron'
+    lepton3:
+      name: 'Electron2'
+      type: 'Electron'
+# name of the application regions
+application_region: ['FFF','FFP','FPF','FPP','PFF','PFP','PPF']
+# parameters for auto-binning
+nbin_max: 10  # Targeted number of bins. If not enough signal events, it will be reduced.
+min_bck: 1.   # min background yeld (both Fake and True)
+max_rel_error: 0.5 # max relative error for both background yield in each bin

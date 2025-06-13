@@ -1,0 +1,5 @@
+- name: data
+  title: "Data"
+  type: data
+  files:
+  - SingleMuonAndEGamma_2018_anatuple.root

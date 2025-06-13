@@ -1,0 +1,5 @@
+- name: data
+  title: "Data"
+  type: data
+  files:
+  - SingleElectron_2016_anatuple.root

@@ -1,0 +1,17 @@
+Tau_pt:
+  x_bins: "config" #[20.0, 22.5406436920166, 26.013492584228516, 31.16185188293457, 41.24894714355469, 100]
+  x_title: "#tau_{h} p_{T} (GeV)"
+  y_title: "Events"
+  use_log_y: False
+  max_y_sf: 1.5
+  divide_by_bin_width: False
+  flow: True
+
+Tau_abseta:
+  x_bins: "config" #[0.0, 0.369384765625, 0.755859375, 1.16943359375, 1.683349609375, 2.5]
+  x_title: "#tau_{h} #eta"
+  y_title: "Events"
+  use_log_y: False
+  max_y_sf: 1.5
+  divide_by_bin_width: False
+  flow: False
