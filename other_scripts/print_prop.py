@@ -3,7 +3,7 @@ import os
 #params
 channels = ['tmm', 'tee','tem','ttm','tte']
 period = '2018'
-tag = 'AddJETcorr'
+tag = 'FinalProd'
 region = 'InvertedBjetsVetoRegion'
 
 # Define the input list

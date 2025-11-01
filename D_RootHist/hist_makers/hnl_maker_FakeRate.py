@@ -38,6 +38,8 @@ def make_histograms(input_dir, hist_name=None, hist_cfg=None, inputs_cfg=None, c
     is_correction = True
   else:
     is_correction = False
+
+  # is_correction = False
     
   x_bins = load_xbins(hist_cfg, hist_name)
   is_flow = hist_cfg[hist_name].get('flow', False)
@@ -63,7 +65,7 @@ def make_histograms(input_dir, hist_name=None, hist_cfg=None, inputs_cfg=None, c
 
   print(f'Computing Prompt Background ...')
   cut = cutRegion['TrueLepton'][f'{PlotRegion}_PassTightWP_TrueLeptons']
-  TrueLepton = np.array(compute_var_to_plot(branches['TrueLepton'], hist_name)).flatten()[cut]
+  TrueLepton = np.array(compute_var_to_plot(branches['TrueLepton'], hist_name, CorrFactor = CorrFactor)).flatten()[cut]
   TrueLepton_w = branches['TrueLepton']['genWeight'][cut]
 
   print(f'Computing FakeBackground ...')
@@ -73,12 +75,12 @@ def make_histograms(input_dir, hist_name=None, hist_cfg=None, inputs_cfg=None, c
 
   print(f'Computing Signal ...')
   cut = cutRegion[f'HNL{MassHNL_Hyp}'][f'{PlotRegion}_PassTightWP'] 
-  Signal = np.array(compute_var_to_plot(branches[f'HNL{MassHNL_Hyp}'], hist_name)).flatten()[cut]
+  Signal = np.array(compute_var_to_plot(branches[f'HNL{MassHNL_Hyp}'], hist_name, CorrFactor = CorrFactor)).flatten()[cut]
   Signal_w = branches[f'HNL{MassHNL_Hyp}']['genWeight'][cut]
 
   print(f'Computing Data ...')
   cut = cutRegion['data'][f'{PlotRegion}_PassTightWP']
-  Data = np.array(compute_var_to_plot(branches['data'], hist_name)).flatten()[cut]
+  Data = np.array(compute_var_to_plot(branches['data'], hist_name, CorrFactor = CorrFactor)).flatten()[cut]
   Data_w = branches['data']['genWeight'][cut]
 
   if len(x_bins) == 2:
@@ -111,19 +113,74 @@ def make_histograms(input_dir, hist_name=None, hist_cfg=None, inputs_cfg=None, c
     print('--- Compute corrections ---')
     print('')
     print('- Compute corrections for TrueLepton')
+    # for MainMCsample in XsecUnc.keys():
+    #   if XsecUnc[MainMCsample]['relunc'] != None:
+    #     cut = cutRegion['TrueLepton'][f'{PlotRegion}_PassTightWP_TrueLeptons']
+    #     mask_sample = branches['TrueLepton'][f'mask_{MainMCsample}'][cut]
+    #     weight_nom = branches['TrueLepton']['genWeight'][cut]
+    #     weight_up  = np.where(mask_sample == 1, (1. + XsecUnc[MainMCsample]['relunc'])*weight_nom, weight_nom)  
+    #     weight_down= np.where(mask_sample == 1, (1. - XsecUnc[MainMCsample]['relunc'])*weight_nom, weight_nom)  
+    #     MainMCsampleName = MainMCsample.replace('_','').replace('-','')
+    #     hists[f'TrueLepton_XsecUnc{MainMCsampleName}Up'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
+    #     hists[f'TrueLepton_XsecUnc{MainMCsampleName}Up'].fill(x=np.array(compute_var_to_plot(branches['TrueLepton'], hist_name, CorrFactor = CorrFactor)).flatten()[cut], weight=weight_up)
+    #     hists[f'TrueLepton_XsecUnc{MainMCsampleName}Down'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
+    #     hists[f'TrueLepton_XsecUnc{MainMCsampleName}Down'].fill(x=np.array(compute_var_to_plot(branches['TrueLepton'], hist_name, CorrFactor = CorrFactor)).flatten()[cut], weight=weight_down)
+
+
+    # extract DY list of files (put in a function)
+    configMainMCbackgroundFile = os.path.join(os.getenv("RUN_PATH"), f'common/config/all/inputs/inputs_MainMCbackground_{channel}.yaml')
+    with open(configMainMCbackgroundFile, 'r') as f:
+      configMainMCbackground = yaml.safe_load(f)
+    DY_entry = next((item for item in configMainMCbackground if item.get("name") == "DY"), None)
+    if DY_entry:
+        DYsamplelist = [f.replace("_anatuple.root", "") for f in DY_entry.get("files", [])]
+    # ------ 
+
+    cut = cutRegion['TrueLepton'][f'{PlotRegion}_PassTightWP_TrueLeptons']
+    weight_nom = branches['TrueLepton']['genWeight'][cut]
+    TrueLep_events = np.array(compute_var_to_plot(branches['TrueLepton'], hist_name, CorrFactor = CorrFactor)).flatten()[cut]
+    # initialize "other sample" mask to all true
+    #mask_dummy = branches['TrueLepton'][f'mask_WWW'][cut]
+    mask_samplecovred = np.array(np.zeros(np.sum(cut)), dtype=bool)
     for MainMCsample in XsecUnc.keys():
-      if XsecUnc[MainMCsample]['relunc'] != None:
-        cut = cutRegion['TrueLepton'][f'{PlotRegion}_PassTightWP_TrueLeptons']
+      print(MainMCsample)
+      if (MainMCsample != "DYJetsToLL"):
         mask_sample = branches['TrueLepton'][f'mask_{MainMCsample}'][cut]
-        weight_nom = branches['TrueLepton']['genWeight'][cut]
-        weight_up  = np.where(mask_sample == 1, (1. + XsecUnc[MainMCsample]['relunc'])*weight_nom, weight_nom)  
-        weight_down= np.where(mask_sample == 1, (1. - XsecUnc[MainMCsample]['relunc'])*weight_nom, weight_nom)  
-        MainMCsampleName = MainMCsample.replace('_','').replace('-','')
-        hists[f'TrueLepton_XsecUnc{MainMCsampleName}Up'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
-        hists[f'TrueLepton_XsecUnc{MainMCsampleName}Up'].fill(x=np.array(compute_var_to_plot(branches['TrueLepton'], hist_name)).flatten()[cut], weight=weight_up)
-        hists[f'TrueLepton_XsecUnc{MainMCsampleName}Down'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
-        hists[f'TrueLepton_XsecUnc{MainMCsampleName}Down'].fill(x=np.array(compute_var_to_plot(branches['TrueLepton'], hist_name)).flatten()[cut], weight=weight_down)
-    hists = produceNPhists(hists, branches, 'TrueLepton', cut, x_bins, hist_name, channel, is_flow)
+        mask_samplecovred = mask_samplecovred | np.array(mask_sample, dtype=bool)
+
+      elif MainMCsample == "DYJetsToLL":
+        mask_DYsample = np.array(np.zeros(np.sum(cut)), dtype=bool)
+        for DYfile in DYsamplelist:
+          mask_DYfile = branches['TrueLepton'][f'mask_{DYfile}'][cut]
+          mask_samplecovred = mask_samplecovred | np.array(mask_DYfile, dtype=bool)
+          mask_DYsample = mask_DYsample | np.array(mask_DYfile, dtype=bool)
+        mask_sample = mask_DYsample
+
+      #print(np.sum(mask_sample))
+      #print(np.sum(mask_samplecovred))
+
+      weight_up  = np.where(mask_sample == 1, (1. + XsecUnc[MainMCsample]['RelUncUp'])*weight_nom, weight_nom)  
+      weight_down= np.where(mask_sample == 1, (1. - XsecUnc[MainMCsample]['RelUncDown'])*weight_nom, weight_nom)  
+      MainMCsampleName = MainMCsample.replace('_','').replace('-','')
+      hists[f'TrueLepton_XsecUnc{MainMCsampleName}Up'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
+      hists[f'TrueLepton_XsecUnc{MainMCsampleName}Up'].fill(x=TrueLep_events, weight=weight_up)
+      hists[f'TrueLepton_XsecUnc{MainMCsampleName}Down'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
+      hists[f'TrueLepton_XsecUnc{MainMCsampleName}Down'].fill(x=TrueLep_events, weight=weight_down)
+
+    weight_up  = np.where(mask_samplecovred == 0, (1. + 0.2)*weight_nom, weight_nom)  
+    weight_down= np.where(mask_samplecovred == 0, (1. - 0.2)*weight_nom, weight_nom)  
+    hists[f'TrueLepton_XsecUncOthersUp'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
+    hists[f'TrueLepton_XsecUncOthersUp'].fill(x=TrueLep_events, weight=weight_up)
+    hists[f'TrueLepton_XsecUncOthersDown'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
+    hists[f'TrueLepton_XsecUncOthersDown'].fill(x=TrueLep_events, weight=weight_down)
+
+    #statweight_up, statweight_down = compute_stat_unc(branches['TrueLepton']['genWeight'][cut])
+    #hists[f'TrueLepton_StatUncUp'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
+    #hists[f'TrueLepton_StatUncUp'].fill(x=TrueLep_events, weight=statweight_up)
+    #hists[f'TrueLepton_StatUncDown'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
+    #hists[f'TrueLepton_StatUncDown'].fill(x=TrueLep_events, weight=statweight_down)
+
+    hists = produceNPhists(hists, branches, 'TrueLepton', cut, x_bins, hist_name, channel, is_flow, CorrFactor)
 
     print('')
     print('- Compute corrections for FakeBackground')
@@ -138,7 +195,21 @@ def make_histograms(input_dir, hist_name=None, hist_cfg=None, inputs_cfg=None, c
     print('')
     print(f'- Compute corrections for Signal')
     cut = cutRegion[f'HNL{MassHNL_Hyp}'][f'{PlotRegion}_PassTightWP']
-    hists = produceNPhists(hists, branches, f'HNL{MassHNL_Hyp}', cut, x_bins, hist_name, channel, is_flow)
+    hists = produceNPhists(hists, branches, f'HNL{MassHNL_Hyp}', cut, x_bins, hist_name, channel, is_flow, CorrFactor)
+
+    # Add Signal Theory Unc.
+    Signal_w_up  = (1. + 0.04)*Signal_w
+    Signal_w_down= (1. - 0.04)*Signal_w
+    hists[f'HNL{MassHNL_Hyp}_PDFuncUp'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
+    hists[f'HNL{MassHNL_Hyp}_PDFuncUp'].fill(x=np.array(compute_var_to_plot(branches[f'HNL{MassHNL_Hyp}'], hist_name, CorrFactor = CorrFactor)).flatten()[cut], weight=Signal_w_up)
+    hists[f'HNL{MassHNL_Hyp}_PDFuncDown'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
+    hists[f'HNL{MassHNL_Hyp}_PDFuncDown'].fill(x=np.array(compute_var_to_plot(branches[f'HNL{MassHNL_Hyp}'], hist_name, CorrFactor = CorrFactor)).flatten()[cut], weight=Signal_w_down)
+  
+    #statweight_up, statweight_down = compute_stat_unc(Signal_w)
+    #hists[f'HNL{MassHNL_Hyp}_StatUncUp'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
+    #hists[f'HNL{MassHNL_Hyp}_StatUncUp'].fill(x=np.array(compute_var_to_plot(branches[f'HNL{MassHNL_Hyp}'], hist_name, CorrFactor = CorrFactor)).flatten()[cut], weight=statweight_up)
+    #hists[f'HNL{MassHNL_Hyp}_StatUncDown'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
+    #hists[f'HNL{MassHNL_Hyp}_StatUncDown'].fill(x=np.array(compute_var_to_plot(branches[f'HNL{MassHNL_Hyp}'], hist_name, CorrFactor = CorrFactor)).flatten()[cut], weight=statweight_down)
 
     print('')
     print('- Compute ES corrections for (TrueLepton/signal)')
@@ -163,12 +234,12 @@ def make_histograms(input_dir, hist_name=None, hist_cfg=None, inputs_cfg=None, c
         #True Tau MC background
         cut = compute_region_mask(branches['TrueLepton'], channel, 'MC', PlotRegion)[f'{PlotRegion}_PassTightWP_TrueLeptons']
         hists[f'TrueLepton_{SFBranchName}'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
-        hists[f'TrueLepton_{SFBranchName}'].fill(x=np.array(compute_var_to_plot(branches['TrueLepton'], hist_name)).flatten()[cut], weight=branches['TrueLepton']['genWeight'][cut])
+        hists[f'TrueLepton_{SFBranchName}'].fill(x=np.array(compute_var_to_plot(branches['TrueLepton'], hist_name, CorrFactor = CorrFactor)).flatten()[cut], weight=branches['TrueLepton']['genWeight'][cut])
 
         #signal
         cut = compute_region_mask(branches[f'HNL{MassHNL_Hyp}'], channel, 'MC', PlotRegion)[f'{PlotRegion}_PassTightWP']
         hists[f'HNL{MassHNL_Hyp}_{SFBranchName}'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
-        hists[f'HNL{MassHNL_Hyp}_{SFBranchName}'].fill(x=np.array(compute_var_to_plot(branches[f'HNL{MassHNL_Hyp}'], hist_name)).flatten()[cut], weight=branches[f'HNL{MassHNL_Hyp}']['genWeight'][cut])
+        hists[f'HNL{MassHNL_Hyp}_{SFBranchName}'].fill(x=np.array(compute_var_to_plot(branches[f'HNL{MassHNL_Hyp}'], hist_name, CorrFactor = CorrFactor)).flatten()[cut], weight=branches[f'HNL{MassHNL_Hyp}']['genWeight'][cut])
 
   root_hists = { hist_name : ToRootHist(h, hist_name, flow= is_flow) for hist_name, h in hists.items() }
 
@@ -195,13 +266,17 @@ def compute_FRweight(FR, FR_err, branches, Lepton, cut, W_DY_ttbar, CorrFactor):
   weights_DY_err = FR_err[f'{Lepton["type"]}_DY']['fake_rate_err'].evaluate(Lepton_pt, Lepton_abseta)
   weights_ttbar = FR[f'{Lepton["type"]}_ttbar']['fake_rate'].evaluate(Lepton_pt, Lepton_abseta)
   weights_ttbar_err = FR_err[f'{Lepton["type"]}_ttbar']['fake_rate_err'].evaluate(Lepton_pt, Lepton_abseta)
-  weights = W_DY_ttbar['DY'][0]*weights_DY + W_DY_ttbar['ttbar'][0]*weights_ttbar
-  weights_err = np.sqrt((W_DY_ttbar['DY'][0] * weights_DY_err) ** 2 + (W_DY_ttbar['ttbar'][0]* weights_ttbar_err) ** 2 + (weights_DY * W_DY_ttbar['DY'][1]) ** 2 + (weights_ttbar * W_DY_ttbar['ttbar'][1]) ** 2)
+  weights = W_DY_ttbar[Lepton["type"]]['DY'][0]*weights_DY + W_DY_ttbar[Lepton["type"]]['ttbar'][0]*weights_ttbar
+  weights_err = np.sqrt((W_DY_ttbar[Lepton["type"]]['DY'][0] * weights_DY_err) ** 2 + (W_DY_ttbar[Lepton["type"]]['ttbar'][0]* weights_ttbar_err) ** 2 + (weights_DY * W_DY_ttbar[Lepton["type"]]['DY'][1]) ** 2 + (weights_ttbar * W_DY_ttbar[Lepton["type"]]['ttbar'][1]) ** 2)
 
   return weights, weights_err
 
-def compute_FR(weight):
-  return weight/(1-weight)
+def compute_FR(weight, weight_err):
+    nom = weight/(1-weight)
+    err = weight_err/((1-weight)**2)
+    up = np.where(nom + err<0, 0, nom+err)
+    down = np.where(nom - err<0, 0, nom-err)
+    return nom, up, down
 
 def AddOSLepton(branches, channel):
   info_to_save= ['mass', 'pt', 'phi']
@@ -242,7 +317,7 @@ def AddDNNscore(branches, channel, MassHNL_Hyp, period):
     #print(branches[process]["DNNscore"])
   return branches
 
-def produceNPhists(hists, branches, process, cut_region, x_bins, hist_name, channel, is_flow):
+def produceNPhists(hists, branches, process, cut_region, x_bins, hist_name, channel, is_flow, CorrFactor):
   common_corr_list = ['weightcorr_Tau_TauID_genuineElectron_Total_Central', 
                       'weightcorr_Tau_TauID_genuineMuon_Total_Central', 
                       'weightcorr_Tau_TauID_genuineTau_Total_Central', 
@@ -250,7 +325,8 @@ def produceNPhists(hists, branches, process, cut_region, x_bins, hist_name, chan
                       'weightcorr_Electron_EleID_Total_Central',
                       'weightcorr_Muon_TrgSF_singleMu_Total_Central',
                       'weightcorr_Electron_TrgSF_singleEle_stat_Total_Central',
-                      'weightcorr_L1PreFiring_Total_Central',
+                      'weightcorr_L1PreFiring_ECAL_Total_Central',
+                      'weightcorr_L1PreFiring_Muon_Total_Central',
                       'weightcorr_PileUp_Total_Central',
                       'weightcorr_bTagSF_Loose_Total_Central'
                      ]
@@ -292,7 +368,7 @@ def produceNPhists(hists, branches, process, cut_region, x_bins, hist_name, chan
           #else:
           #  corr_weights = np.array(branches[process]['genWeight'][cut_region] * branches[process][NP][cut_region]).flatten()
           #corr_weights = branches[process]['genWeight'][cut_region] * np.array(branches[process][NP][cut_region]).flatten()
-          hists[f'{process}_{name_TH1}'].fill(x=np.array(compute_var_to_plot(branches[process], hist_name)).flatten()[cut_region], weight=corr_weights)
+          hists[f'{process}_{name_TH1}'].fill(x=np.array(compute_var_to_plot(branches[process], hist_name, CorrFactor = CorrFactor)).flatten()[cut_region], weight=corr_weights)
 
     if field in combine_corr_list:
       #print(field)
@@ -317,7 +393,7 @@ def produceNPhists(hists, branches, process, cut_region, x_bins, hist_name, chan
               corr_weights = np.array(branches[process]['genWeight'][cut_region] * branches[process][NP1][cut_region] * branches[process][NP2][cut_region]).flatten()
           else:
             corr_weights = np.array(branches[process]['genWeight'][cut_region] * branches[process][NP1][cut_region] * branches[process][NP2][cut_region]).flatten()
-          hists[f'{process}_{name_TH1}'].fill(x=np.array(compute_var_to_plot(branches[process], hist_name)).flatten()[cut_region], weight=corr_weights)
+          hists[f'{process}_{name_TH1}'].fill(x=np.array(compute_var_to_plot(branches[process], hist_name, CorrFactor = CorrFactor)).flatten()[cut_region], weight=corr_weights)
 
     if (field not in common_corr_list) & (field not in combine_corr_list) & (field.endswith('_Total_Central')):
       name = field.replace('_Total_Central', '')
@@ -368,79 +444,112 @@ def apply_FR_method(FR, FR_err, branches, channel, hist_name, cutRegion, PlotReg
     out += f'N_events AppRegion= {N_events_XXX} \n'
 
     if XXX == 'FFF':
-      weights1, weights1_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton1"], cut, W_DY_ttbar, CorrFactor)
-      weights2, weights2_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton2"], cut, W_DY_ttbar, CorrFactor)
-      weights3, weights3_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton3"], cut, W_DY_ttbar, CorrFactor)
-      weights = compute_FR(weights1)*compute_FR(weights2)*compute_FR(weights3)
-      weights1_errUp =  compute_FR(weights1 + weights1_err)*compute_FR(weights2)*compute_FR(weights3)
-      weights2_errUp =  compute_FR(weights1)*compute_FR(weights2 + weights2_err)*compute_FR(weights3)
-      weights3_errUp =  compute_FR(weights1)*compute_FR(weights2)*compute_FR(weights3 + weights3_err)
-      weights1_errDown =  compute_FR(weights1 - weights1_err)*compute_FR(weights2)*compute_FR(weights3)
-      weights2_errDown =  compute_FR(weights1)*compute_FR(weights2 - weights2_err)*compute_FR(weights3)
-      weights3_errDown =  compute_FR(weights1)*compute_FR(weights2)*compute_FR(weights3 - weights3_err)
+        weights1, weights1_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton1"], cut, W_DY_ttbar, CorrFactor)
+        weights2, weights2_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton2"], cut, W_DY_ttbar, CorrFactor)
+        weights3, weights3_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton3"], cut, W_DY_ttbar, CorrFactor)
+
+        f1, f1_up, f1_down = compute_FR(weights1, weights1_err)
+        f2, f2_up, f2_down = compute_FR(weights2, weights2_err)
+        f3, f3_up, f3_down = compute_FR(weights3, weights3_err)
+
+        weights          = f1 * f2 * f3
+        weights1_errUp   = f1_up   * f2     * f3
+        weights1_errDown = f1_down * f2     * f3
+        weights2_errUp   = f1      * f2_up  * f3
+        weights2_errDown = f1      * f2_down* f3
+        weights3_errUp   = f1      * f2     * f3_up
+        weights3_errDown = f1      * f2     * f3_down
+
 
     if XXX == 'FFP':
-      weights1, weights1_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton1"], cut, W_DY_ttbar, CorrFactor)
-      weights2, weights2_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton2"], cut, W_DY_ttbar, CorrFactor)
-      weights = (-1)*compute_FR(weights1)*compute_FR(weights2)
-      weights1_errUp =  (-1)*compute_FR(weights1 + weights1_err)*compute_FR(weights2)
-      weights2_errUp =  (-1)*compute_FR(weights1)*compute_FR(weights2 + weights2_err)
-      weights3_errUp =  (-1)*compute_FR(weights1)*compute_FR(weights2)
-      weights1_errDown =  (-1)*compute_FR(weights1 - weights1_err)*compute_FR(weights2)
-      weights2_errDown =  (-1)*compute_FR(weights1)*compute_FR(weights2 - weights2_err)
-      weights3_errDown =  (-1)*compute_FR(weights1)*compute_FR(weights2)
+        weights1, weights1_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton1"], cut, W_DY_ttbar, CorrFactor)
+        weights2, weights2_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton2"], cut, W_DY_ttbar, CorrFactor)
+
+        f1, f1_up, f1_down = compute_FR(weights1, weights1_err)
+        f2, f2_up, f2_down = compute_FR(weights2, weights2_err)
+
+        weights          = -1 * f1 * f2
+        weights1_errUp   = -1 * f1_up   * f2
+        weights1_errDown = -1 * f1_down * f2
+        weights2_errUp   = -1 * f1      * f2_up
+        weights2_errDown = -1 * f1      * f2_down
+        weights3_errUp   = weights      
+        weights3_errDown = weights      
+
 
     if XXX == 'FPF':
-      weights1, weights1_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton1"], cut, W_DY_ttbar, CorrFactor)
-      weights3, weights3_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton3"], cut, W_DY_ttbar, CorrFactor)
-      weights = (-1)*compute_FR(weights1)*compute_FR(weights3)
-      weights1_errUp =  (-1)*compute_FR(weights1 + weights1_err)*compute_FR(weights3)
-      weights2_errUp = (-1)*compute_FR(weights1)*compute_FR(weights3)
-      weights3_errUp =  (-1)*compute_FR(weights1)*compute_FR(weights3 + weights3_err)
-      weights1_errDown =  (-1)*compute_FR(weights1 - weights1_err)*compute_FR(weights3)
-      weights2_errDown = (-1)*compute_FR(weights1)*compute_FR(weights3)
-      weights3_errDown =  (-1)*compute_FR(weights1)*compute_FR(weights3 - weights3_err)
+        weights1, weights1_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton1"], cut, W_DY_ttbar, CorrFactor)
+        weights3, weights3_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton3"], cut, W_DY_ttbar, CorrFactor)
+
+        f1, f1_up, f1_down = compute_FR(weights1, weights1_err)
+        f3, f3_up, f3_down = compute_FR(weights3, weights3_err)
+
+        weights          = -1 * f1 * f3
+        weights1_errUp   = -1 * f1_up   * f3
+        weights1_errDown = -1 * f1_down * f3
+        weights3_errUp   = -1 * f1      * f3_up
+        weights3_errDown = -1 * f1      * f3_down
+        weights2_errUp   = weights      
+        weights2_errDown = weights      
+
 
     if XXX == 'PFF':
-      weights2, weights2_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton2"], cut, W_DY_ttbar, CorrFactor)
-      weights3, weights3_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton3"], cut, W_DY_ttbar, CorrFactor)
-      weights = (-1)*compute_FR(weights2)*compute_FR(weights3)
-      weights1_errUp =  (-1)*compute_FR(weights2)*compute_FR(weights3)
-      weights2_errUp =  (-1)*compute_FR(weights2 + weights2_err)*compute_FR(weights3)
-      weights3_errUp =  (-1)*compute_FR(weights2)*compute_FR(weights3 + weights3_err)
-      weights1_errDown =  (-1)*compute_FR(weights2)*compute_FR(weights3)
-      weights2_errDown =  (-1)*compute_FR(weights2 - weights2_err)*compute_FR(weights3)
-      weights3_errDown =  (-1)*compute_FR(weights2)*compute_FR(weights3 - weights3_err)
+        weights2, weights2_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton2"], cut, W_DY_ttbar, CorrFactor)
+        weights3, weights3_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton3"], cut, W_DY_ttbar, CorrFactor)
+
+        f2, f2_up, f2_down = compute_FR(weights2, weights2_err)
+        f3, f3_up, f3_down = compute_FR(weights3, weights3_err)
+
+        weights          = -1 * f2 * f3
+        weights2_errUp   = -1 * f2_up   * f3
+        weights2_errDown = -1 * f2_down * f3
+        weights3_errUp   = -1 * f2      * f3_up
+        weights3_errDown = -1 * f2      * f3_down
+        weights1_errUp   = weights      
+        weights1_errDown = weights      
+
 
     if XXX == 'FPP':
-      weights1, weights1_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton1"], cut, W_DY_ttbar, CorrFactor)
-      weights = compute_FR(weights1)
-      weights1_errUp =  compute_FR(weights1 + weights1_err)
-      weights2_errUp =  compute_FR(weights1)
-      weights3_errUp =  compute_FR(weights1)
-      weights1_errDown =  compute_FR(weights1 - weights1_err)
-      weights2_errDown =  compute_FR(weights1)
-      weights3_errDown =  compute_FR(weights1)
+        weights1, weights1_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton1"], cut, W_DY_ttbar, CorrFactor)
+
+        f1, f1_up, f1_down = compute_FR(weights1, weights1_err)
+
+        weights          = f1
+        weights1_errUp   = f1_up
+        weights1_errDown = f1_down
+        weights2_errUp   = weights   
+        weights2_errDown = weights
+        weights3_errUp   = weights
+        weights3_errDown = weights
+
 
     if XXX == 'PFP':
-      weights2, weights2_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton2"], cut, W_DY_ttbar, CorrFactor)
-      weights = compute_FR(weights2)
-      weights1_errUp =  compute_FR(weights2)
-      weights2_errUp =  compute_FR(weights2 + weights2_err)
-      weights3_errUp =  compute_FR(weights2)
-      weights1_errDown =  compute_FR(weights2)
-      weights2_errDown =  compute_FR(weights2 - weights2_err)
-      weights3_errDown =  compute_FR(weights2)
+        weights2, weights2_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton2"], cut, W_DY_ttbar, CorrFactor)
+
+        f2, f2_up, f2_down = compute_FR(weights2, weights2_err)
+
+        weights         = f2
+        weights2_errUp   = f2_up
+        weights2_errDown = f2_down
+        weights1_errUp   = weights   
+        weights1_errDown = weights
+        weights3_errUp   = weights
+        weights3_errDown = weights
+
 
     if XXX == 'PPF':
-      weights3, weights3_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton3"], cut, W_DY_ttbar, CorrFactor)
-      weights = compute_FR(weights3)
-      weights1_errUp =  compute_FR(weights3)
-      weights2_errUp =  compute_FR(weights3)
-      weights3_errUp =  compute_FR(weights3 + weights3_err)
-      weights1_errDown =  compute_FR(weights3)
-      weights2_errDown =  compute_FR(weights3)
-      weights3_errDown =  compute_FR(weights3 - weights3_err)
+        weights3, weights3_err = compute_FRweight(FR, FR_err, branches, lepton[channel]["lepton3"], cut, W_DY_ttbar, CorrFactor)
+
+        f3, f3_up, f3_down = compute_FR(weights3, weights3_err)
+
+        weights         = f3
+        weights3_errUp   = f3_up
+        weights3_errDown = f3_down
+        weights1_errUp   = weights   
+        weights1_errDown = weights
+        weights2_errUp   = weights
+        weights2_errDown = weights
+
 
     out += f'sumw FFs= {round(np.sum(weights),1)} \n'
     FakesProp = (N_events_XXX - sumw_MC[f'AppRegion{XXX}_TrueLepton'])/N_events_XXX
@@ -449,7 +558,7 @@ def apply_FR_method(FR, FR_err, branches, channel, hist_name, cutRegion, PlotReg
     FakesProp_err = np.sqrt(N_events_XXX)/N_events_XXX
 
     out += f'sumw FakesProp = {round(FakesProp,1)} \n'
-    Fakes['var'] = np.concatenate( [Fakes['var'], np.array(compute_var_to_plot(branches['data'], hist_name)[cut]).flatten()])
+    Fakes['var'] = np.concatenate( [Fakes['var'], np.array(compute_var_to_plot(branches['data'], hist_name, CorrFactor = CorrFactor)[cut]).flatten()])
     #np.array(branches['data'][f"{lepton[channel]['lepton1']['name']}_pt"][cut]).flatten()
     Fakes['lepton1_ptcorr'] = np.concatenate( [Fakes['lepton1_ptcorr'], compute_ptcorr(branches, lepton[channel]['lepton1'], CorrFactor)[cut]])
     Fakes['lepton2_ptcorr'] = np.concatenate( [Fakes['lepton2_ptcorr'], compute_ptcorr(branches, lepton[channel]['lepton2'], CorrFactor)[cut]])
@@ -583,7 +692,8 @@ def ComputeFakeFactorsSyst(channel, period, Fakes, tag, W_DY_ttbar):
     bins[-1] = 1000000
     Bins_lep[leptonNb] = bins
     for i in range(len(bins) -1):
-      combine_err = (W_DY_ttbar['DY'][0]*abs(errLepDY['ratio'][i])+W_DY_ttbar['ttbar'][0]*abs(errLepttbar['ratio'][i]))
+      #combine_err = (W_DY_ttbar[lepton_type]['DY'][0]*abs(errLepDY['ratio'][i])+W_DY_ttbar[lepton_type]['ttbar'][0]*abs(errLepttbar['ratio'][i]))
+      combine_err = np.sqrt((W_DY_ttbar[lepton_type]['DY'][0]*errLepDY['ratio'][i])**2 + (W_DY_ttbar[lepton_type]['ttbar'][0] * errLepttbar['ratio'][i])**2)
       if combine_err > 0.3:
         print(f'WARNING: {lepton[channel][leptonNb]["name"]} bin {i} has a large error: {combine_err} | {errLepDY["ratio"][i]} (DY) and {errLepttbar["ratio"][i]} (ttbar)')
       Weights_lep[leptonNb][i] = {}
@@ -615,15 +725,25 @@ def load_FR(tag, period):
 
 def load_W_DY_ttbar(tag, period, PlotRegion, channel):
   # Load DY and ttbar weights
-  with open(os.path.join(os.getenv("RUN_PATH"), f'B_FakeRate/results/{tag}/{period}/Prop_DY_ttbar_in{PlotRegion}AppRegion.yml'), 'r') as stream: 
+  with open(os.path.join(os.getenv("RUN_PATH"), f'B_FakeRate/results/{tag}/{period}/FRweights_{PlotRegion}AppRegion.yml'), 'r') as stream: 
       file_content = yaml.safe_load(stream)
-      W_DY_ttbar = file_content[channel]
+      # Collect only leptons that contain the requested channel
+      W_DY_ttbar = {
+          lepton: channels[channel]
+          for lepton, channels in file_content.items()
+          if channel in channels
+      }
   return W_DY_ttbar
 
+# def load_XsecUnc(tag, period, channel):
+#   with open(os.path.join(os.getenv("RUN_PATH"), f'A_cutflow/results/{tag}/{period}/Xsec_unc.yml'), 'r') as f:
+#       XsecUnc = yaml.safe_load(f)
+#       XsecUnc = XsecUnc[channel]
+#   return XsecUnc
+
 def load_XsecUnc(tag, period, channel):
-  with open(os.path.join(os.getenv("RUN_PATH"), f'A_cutflow/results/{tag}/{period}/Xsec_unc.yml'), 'r') as f:
+  with open(os.path.join(os.getenv("RUN_PATH"), f'A_cutflow/results/Xsec_unc.yml'), 'r') as f:
       XsecUnc = yaml.safe_load(f)
-      XsecUnc = XsecUnc[channel]
   return XsecUnc
 
 def load_CorrFactor(tag, period):
@@ -655,7 +775,6 @@ def compute_adaptive_binning(signal_vals, bkg1_vals, bkg1_weights, bkg2_vals, bk
         n_threshold_signal = np.floor(len(signal_vals[mask]) / nbin_max).astype(int)
     else:
       n_threshold_signal = np.floor(len(signal_vals[mask]) / nbin_max).astype(int)
-
 
     # Granularity control
     step_int_scale = 1e4  # granularity (0.0001 bins)
@@ -731,13 +850,35 @@ def compute_adaptive_binning(signal_vals, bkg1_vals, bkg1_weights, bkg2_vals, bk
         print(f'Rel. err. Fake bkg: {np.sqrt(acc_bkg2_w2) / acc_bkg2}')
         print('')
         edges.append(j)
+
         if j <= min_value_int:
-            if (acc_sig >= n_threshold_signal*0.5 and total_bkg_yield >= w_threshold_bck and bkg1_err_ok and bkg2_err_ok) | (nbin_max == 1):
-              break
+            if (acc_sig >= n_threshold_signal*0.5 and total_bkg_yield >= w_threshold_bck and bkg1_err_ok and bkg2_err_ok) or ((len(edges) - 1) <= 1):
+                break
             else:
-              print('removing last edge')
-              edges.remove(j)
-              break
+                print('removing last edge')
+                edges.remove(j)
+                # NEW safeguard: keep removing edges until merged bin yields are valid
+                while len(edges) > 1:
+                    # convert to array indices
+                    edge_int = edges[-2]
+                    end_idx   = edge_int - min_value_int
+
+                    # recompute merged background yields for this last bin
+                    acc_bkg1_merged = np.sum(bkg1_hist[:end_idx+1])
+                    acc_bkg2_merged = np.sum(bkg2_hist[:end_idx+1])
+                    total_bkg_yield_merged = acc_bkg1_merged + acc_bkg2_merged
+
+                    print("Check merged:")
+                    print("  True bkg:", acc_bkg1_merged)
+                    print("  Fake bkg:", acc_bkg2_merged)
+                    print("  Total:", total_bkg_yield_merged)
+
+                    if acc_bkg1_merged <= 0 or acc_bkg2_merged <= 0 or total_bkg_yield_merged <= 0:
+                        print("Removing problematic edge due to negative merged yield")
+                        edges.pop(-2)  # drop the second-to-last edge
+                    else:
+                        break
+                break
         i = j
 
     # Finalize edges
@@ -753,3 +894,13 @@ def compute_adaptive_binning(signal_vals, bkg1_vals, bkg1_weights, bkg2_vals, bk
     x_bins = edges.tolist()
     print(f"Adaptive binning complete: {len(x_bins) - 1} bins.")
     return x_bins 
+
+def compute_stat_unc(weights):
+    sumw = np.sum(weights)
+    sumw2 = np.sum(weights**2)
+    delta = np.sqrt(sumw2)
+    # relative uncertainty
+    rel_unc = delta / sumw if sumw != 0 else 0.0
+    weight_up = weights * (1.0 + rel_unc)
+    weight_down = weights * (1.0 - rel_unc)
+    return weight_up, weight_down

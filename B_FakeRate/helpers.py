@@ -543,9 +543,10 @@ lepton = {
 }
 
 # Define the function to calculate the ratio
-def ratio_func(numerator, denominator):
+def ratio_func(numerator, denominator, prompt, data):
+    mask_valid =np.array(prompt.values() / data.values()) < 0.5
     ratio = (numerator.values() - denominator.values()) / denominator.values()
-    return np.array(ratio)
+    return np.where(mask_valid, np.array(ratio), np.array(ratio/ratio)*0.3)
 
 '''
 def compute_FRweight(FR, W_DY_ttbar, branches, Lepton, cut):
@@ -775,8 +776,8 @@ def compute_corrFactor(branches, channels, leptonname, RegionName, selection, nb
     plt.errorbar(bin_centers, avg_ConeCorrectedPt_Data, fmt='o', capsize=5, label=f'Data with correction factor (f = {Lepton_factor_Data:.3f})', color='black')
     plt.axvline(0.15, linestyle='--', color='gray', alpha=0.6)
     plt.text(0.152, plt.ylim()[1]*0.95, 'cut = 0.15', fontsize=12, color='gray')
-    plt.xlabel(f'{leptonname}_pfRelIso03_all')
-    plt.ylabel(r'Average $p_T^{corr}$ [GeV]')
+    plt.xlabel(f'{leptonname}_pfRelIso03_all', fontsize=18)
+    plt.ylabel(r'Average $p_T^{corr}$ [GeV]', fontsize=18)
     plt.title('Avg ConeCorrectedPt vs pfRelIso03')
     plt.grid(True)
     plt.legend()

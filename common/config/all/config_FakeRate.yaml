@@ -3,7 +3,7 @@ print_ARinfo: True
 #DNN config
 ModelName: AllYears_AllChannels
 # FR config for LL
-tag_LL: LightLeptFFV2
+tag_LL: FinalProd
 #config for the different channels
 lepton:
   tem:

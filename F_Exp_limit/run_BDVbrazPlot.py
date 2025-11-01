@@ -6,7 +6,7 @@ from ROOT import TCanvas, TGraph, TLegend
 import CMS_lumi, tdrstyle
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 
-tag = 'AddJETcorr'
+tag = 'FinalProd'
 period = 'All' # 'All' if all year combined, else '2018', ...
 
 chTolatex = {
@@ -33,7 +33,7 @@ def PlotExpLimits(V2_lim, outputfile, period, channel):
     yellow = TGraph(2*N)    # yellow band
     green = TGraph(2*N)     # green band
     median = TGraph(N)      # median line
- 
+    
     up2s = [ ]
     for i in range(N):
         limit = V2_lim[HNL_mass_range[i]]
@@ -158,12 +158,21 @@ def main():
         outputfile = outputdir + fig_name
         V2_lim = {}
         for HNL_mass in list(BDV[channel].keys()):
-            print(f'HNL_mass: {HNL_mass}')
+            #print(f'HNL_mass: {HNL_mass}')
             file_path = os.path.join(CombinePath, input_file)
             with open(file_path, 'r') as yaml_file:
                 intPoints = yaml.load(yaml_file, Loader=yaml.FullLoader)
-            print(f'BDV: {BDV[channel][HNL_mass]}')
+            #print(f'BDV: {BDV[channel][HNL_mass]}')
             V2_lim[HNL_mass] = np.array(intPoints[BDV[channel][HNL_mass]][HNL_mass])
+            if len(V2_lim[HNL_mass]) == 5:
+                print(f'HNL_mass: {HNL_mass}')
+                #print(f'V2_lim: {V2_lim[HNL_mass]}')
+            else:
+                print(f'HNL_mass: {HNL_mass}')
+                print(f'BDV: {BDV[channel][HNL_mass]}')
+                print(f'!!!!!! V2_lim: {V2_lim[HNL_mass]} !!!!!!')
+                print(" ")
+                V2_lim[HNL_mass] = np.array([V2_lim[HNL_mass], V2_lim[HNL_mass],V2_lim[HNL_mass],V2_lim[HNL_mass],V2_lim[HNL_mass]])
         PlotExpLimits(V2_lim, outputfile, period, channel)
  
 if __name__ == '__main__':

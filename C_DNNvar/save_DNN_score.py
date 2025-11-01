@@ -10,9 +10,9 @@ from common.helpers import get_hnl_masses
 
 #parameters -----------------------------------------------------------------------------------------------------
 #period = period of data taking
-period = '2018'
+period = '2016_HIPM'
 #tag = tag used for anatuple production
-tag = 'AddJETcorr'
+tag = 'FinalProd'
 #folderDNNName = name of the folder in which DNN model is stored
 folderDNNName= 'AllYears_AllChannels'
 #modelName = name of the DNN model you want to use

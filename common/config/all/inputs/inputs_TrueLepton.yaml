@@ -1,5 +1,5 @@
 - name: TrueLepton
-  title: "Prompt e/#mu & #tau_{h} (MC)"
+  title: "Prompt backgrounds (MC)"
   type: background
   color: kBlue-3
   files:

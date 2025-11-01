@@ -4,6 +4,7 @@ import numpy as np
 import correctionlib.convert
 import hist
 import ROOT
+import math
 
 from common.helpers import load_ntuples
 from common.regions.regions import compute_region_mask
@@ -16,7 +17,7 @@ from B_FakeRate.helpers import compute_ptcorr, apply_FR_methodLL, ratio_func, Ad
 #period = period of data taking
 period = '2018'
 #tag = tag used for LL FR computation
-tag  = 'LightLeptFFV2'
+tag  = 'FinalProd'
 #bins = either int and bin size such that statistic is the same for all bins or 'config' and pt and eta bins from config file 
 bins = 'config'
 #----------------------------------------------------------------------------------------------------------------
@@ -166,136 +167,112 @@ for Lepton in Leptons:
         hists['ExpBackground'] = hist.Hist.new.Variable(pt_bins, name='x', overflow=True).Weight()
         hists['ExpBackground'].fill(x=np.concatenate( (Data_pt,TrueLepton_pt)), weight=np.concatenate( (Data_weights,(-1)*TrueLepton_weight)))
 
-        # Combine hist1 and hist2
-        #stacked_hist = hists['TrueLepton'] + hists['FakeBackground']
-
-        #print(f'binning: {pt_bins}')
-        #print(f'PromptLeptons: {hists["PromptLeptons"].values()}')
-        #print(f'FakeBackground: {hists["FakeBackground"].values()}')
-        #print('')
-
-        Results[Lepton][RegionName]['ratio'] = abs(ratio_func(hists['ExpBackground'], hists['MissIDPred'])).tolist()
+        Results[Lepton][RegionName]['ratio'] = abs(ratio_func(hists['ExpBackground'], hists['MissIDPred'], hists['PromptLeptons'], hists['data'])).tolist()
         Results[Lepton][RegionName]['bin']   = pt_bins.tolist()
 
-        # Setup ROOT style
+        # --- convert coffea hist -> ROOT TH1 and enable Sumw2 ---
+        h_data   = ToRootHist_val(hists['data']);       h_data.Sumw2()
+        h_missid = ToRootHist_val(hists['MissIDPred']); h_missid.Sumw2()
+        h_prompt = ToRootHist_val(hists['PromptLeptons']); h_prompt.Sumw2()
+
+        # --- style ---
+        h_missid.SetLineColor(ROOT.kBlue-10)
+        h_missid.SetFillColor(ROOT.kBlue-10)
+
+        h_prompt.SetLineColor(ROOT.kGreen+2)
+        h_prompt.SetFillColor(ROOT.kGreen+2)
+
+        h_data.SetLineColor(ROOT.kBlack)
+        h_data.SetMarkerStyle(20)
+
+        # --- build stack and total MC ---
+        stack = ROOT.THStack("stack","")
+        stack.Add(h_missid)
+        stack.Add(h_prompt)
+
+        h_mc_total = h_missid.Clone("h_mc_total")
+        h_mc_total.Add(h_prompt)
+
+        # --- combined MC stat uncertainty (top pad band) ---
+        h_unc = h_mc_total.Clone("h_unc")
+        n_bins = h_unc.GetNbinsX()
+        for ib in range(1, n_bins+1):
+            err = math.sqrt(h_missid.GetBinError(ib)**2 + h_prompt.GetBinError(ib)**2)
+            h_unc.SetBinError(ib, err)
+        h_unc.SetFillColor(ROOT.kGray+2)
+        h_unc.SetFillStyle(3354)   # hatched
+        h_unc.SetLineWidth(0)
+
+        # --- axis ranges and titles on underlying histograms ---
+        h_mc_total.SetMinimum(0)
+        h_data.SetMinimum(0)
+        max_val = max(h_mc_total.GetMaximum(), h_data.GetMaximum())
+        h_mc_total.SetMaximum(20 + max_val)
+        h_data.SetMaximum(20 + max_val)
+
+        # --- canvas and ratio plot (canvas must be created before TRatioPlot) ---
         ROOT.gStyle.SetOptStat(0)
-
-        # Create canvas
         c1 = ROOT.TCanvas("c1", "A ratio example")
-
-        # Convert histograms to ROOT TH1 objects
-        h1 = ToRootHist_val(hists['MissIDPred'])
-        h2 = ToRootHist_val(hists['ExpBackground'])
-
-        # Set line colors and fill colors for stack components
-        h1.SetLineColor(ROOT.kBlue-10)
-        h1.SetFillColor(ROOT.kBlue-10)
-        h2.SetLineColor(ROOT.kBlack)
-        h2.SetMarkerStyle(20)
-
-        # Create the ratio plot with the total expected background and the data
-        rp = ROOT.TRatioPlot(h2, h1)
-
-        # Customize the canvas
         c1.SetTicks(0, 1)
         c1.SetLogx()
-        
-        max_val = max([max(hists['ExpBackground'].values()), max(hists['MissIDPred'].values())])
 
-        h1.SetMinimum(0)
-        h1.SetMaximum(20 + max_val)
-
-        h2.SetMinimum(0)
-        h2.SetMaximum(20 + max_val)
-        h2.GetYaxis().SetTitle('Events / bin')
-
-        rp.GetXaxis().SetTitle(f'{Lepton} pt [GeV]')
-
-        # Draw the ratio plot
+        rp = ROOT.TRatioPlot(h_data, h_mc_total)
         rp.Draw()
 
-        # Get the upper pad to draw the stack histograms and the data histogram
+        # configure lower (ratio) axis labels / range
+        lower_graph = rp.GetLowerRefGraph()
+        lower_graph.GetXaxis().SetTitle("p_{T}^{corr} [GeV]")
+        lower_graph.GetYaxis().SetTitle("ratio")
+        lower_graph.SetMinimum(0.5)
+        lower_graph.SetMaximum(1.5)
+
+        # --- upper pad: draw stack, MC uncertainty band, data ---
         upper_pad = rp.GetUpperPad()
         upper_pad.cd()
-
-        # Draw the stacked histograms
-        h1.Draw("hist same")
-
-        # Draw the data histogram on the same canvas
-        h2.Draw("same E")
-
-        # Update the upper pad to refresh the axis
+        stack.Draw("hist same")
+        h_unc.Draw("E2 same")   # hashed uncertainty band on top of stack
+        h_data.Draw("E same")
+        #upper_pad.GetYaxis().SetTitle("Events / bin")
         upper_pad.Update()
 
-        # Add a legend
-        legend = ROOT.TLegend(0.7, 0.1, 0.9, 0.3)
-        legend.AddEntry(h1, "Miss id. rate prediction", "f")
-        legend.AddEntry(h2, "Data", "lep")
-        legend.Draw()
+        # --- lower pad: draw relative uncertainty band around 1 ---
+        lower_pad = rp.GetLowerPad()
+        lower_pad.cd()
 
-        # Save the plot
-        c1.SaveAs(output_figures + f"Syst_Unc_{Lepton}FFs_{RegionUnc}.pdf")
+        h_rel_unc = h_mc_total.Clone("h_rel_unc")
+        for ib in range(1, h_rel_unc.GetNbinsX()+1):
+            mc = h_mc_total.GetBinContent(ib)
+            err = math.sqrt(h_missid.GetBinError(ib)**2 + h_prompt.GetBinError(ib)**2)
+            if mc > 0:
+                h_rel_unc.SetBinContent(ib, 1.0)
+                h_rel_unc.SetBinError(ib, err / mc)
+            else:
+                h_rel_unc.SetBinContent(ib, 1.0)
+                h_rel_unc.SetBinError(ib, 0.0)
 
-        '''
-        # Create a stack for the background components
-        hs = ROOT.THStack("hs", "")
+        h_rel_unc.SetFillColor(ROOT.kGray+2)
+        h_rel_unc.SetFillStyle(3354)
+        h_rel_unc.SetLineWidth(0)
+        h_rel_unc.Draw("E2 same")
 
-        # Add components to the stack
-        hs.Add(h1_fake)
-        hs.Add(h1_true)
+        # redraw ratio graph on top
+        lower_graph.Draw("same p")
+        lower_graph.GetXaxis().SetTitle("p_{T}^{corr} [GeV]")
+        lower_pad.Update()
 
-        # Create a histogram for the total expected background by adding the components
-        h1 = h1_fake.Clone("h1")
-        h1.Add(h1_true)
-
-        # Create the ratio plot with the total expected background and the data
-        rp = ROOT.TRatioPlot(h2, h1)
-
-        # Customize the canvas
-        c1.SetTicks(0, 1)
-        c1.SetLogx()
-        h1.GetXaxis().SetTitle(f'{Lepton} pt corr [GeV]')
-        h1.GetYaxis().SetTitle('Events / bin')
-        h1.SetMinimum(0)
-        h1.SetMaximum(20 + max([max(hists['ExpBackground'].values()), max(hists['data'].values())]))
-
-        # Draw the ratio plot
-        rp.Draw()
-
-        # Get the upper pad to draw the stack histograms and the data histogram
-        upper_pad = rp.GetUpperPad()
+        # --- legend + save ---
         upper_pad.cd()
-
-        # Set the same y-axis range for the stack
-        hs.SetMinimum(0)
-        hs.SetMaximum(20 + max([max(hists['ExpBackground'].values()), max(hists['data'].values())]))
-
-        # Draw the stacked histograms
-        hs.Draw("hist same")
-
-        # Set the same y-axis range for the stack
-        h2.SetMinimum(0)
-        h2.SetMaximum(20 + max([max(hists['ExpBackground'].values()), max(hists['data'].values())]))
-
-        # Draw the data histogram on the same canvas
-        h2.Draw("same E")
-
-        # Update the upper pad to refresh the axis
-        upper_pad.Update()
-
-        # Add a legend
-        legend = ROOT.TLegend(0.7, 0.1, 0.9, 0.3)
-        legend.AddEntry(h1_fake, "Fake Background", "f")
-        legend.AddEntry(h1_true, "True Lepton (MC)", "f")
-        legend.AddEntry(h2, "Data", "lep")
+        legend = ROOT.TLegend(0.65, 0.65, 0.9, 0.85)
+        legend.SetBorderSize(0)
+        legend.AddEntry(h_data, "Data", "lep")
+        legend.AddEntry(h_prompt, "Prompt leptons", "f")
+        legend.AddEntry(h_missid, "Miss id. prediction", "f")
+        legend.AddEntry(h_unc, "MC stat. unc.", "f")
         legend.Draw()
 
-        # Save the plot
         c1.SaveAs(output_figures + f"Syst_Unc_{Lepton}FFs_{RegionUnc}.pdf")
-        '''
+
 
 # Save dictionary to a YAML file
 with open(output_results + 'Syst_Unc_LLFF.yaml', 'w') as file:
     yaml.dump(Results, file, default_flow_style=False)
-
-

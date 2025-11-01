@@ -8,7 +8,7 @@ import numpy as np
 #period = period of data taking
 periods = ['2016','2016_HIPM','2017','2018']
 #tag = tag used for anatuple production
-tag = 'AddJETcorr'
+tag = 'FinalProd'
 #channels
 channels = ['tte', 'ttm','tee','tem','tmm']
 #----------------------------------------------------------------------------------------------------------------

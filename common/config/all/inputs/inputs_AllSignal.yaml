@@ -90,10 +90,10 @@
   files:
   - HNL_tau_M-250_anatuple.root
 - name: HNL300
-  title: "HNL #rightarrow 3l m_{HNL} = 300 GeV"
+  title: "m_{HNL} = 300 GeV (arb. scale)"
   type: signal
   color: kBlack
-  scale: 1.
+  scale: 0.1
   files:
   - HNL_tau_M-300_anatuple.root
 - name: HNL350
@@ -104,10 +104,10 @@
   files:
   - HNL_tau_M-350_anatuple.root
 - name: HNL400
-  title: "HNL #rightarrow 3l m_{HNL} = 400 GeV"
+  title: "m_{HNL} = 400 GeV (arb. scale)"
   type: signal
   color: kBlack
-  scale: 1.
+  scale: 0.2
   files:
   - HNL_tau_M-400_anatuple.root
 - name: HNL450

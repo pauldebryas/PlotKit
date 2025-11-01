@@ -86,14 +86,14 @@ def plot_pieFig(channels, output_file, output_path_fig, onlyTL = False):
             if MCfile.endswith('JetsToLNu') | MCfile.startswith('WJetsToLNu_HT'):
                 MCsamples_grouped['WJetsToLNu'] += MCsamples[channel][MCfile]
                 continue
-            if (100*MCsamples[channel][MCfile]/sumwtotal) <= 2.0:
+            if (100*MCsamples[channel][MCfile]/sumwtotal) <= 2.4:
                 MCsamples_grouped['others'] += MCsamples[channel][MCfile]
                 continue
             MCsamples_grouped[MCfile] = MCsamples[channel][MCfile]
 
         key_del = []
         for mykey in MCsamples_grouped.keys():
-            if (100*MCsamples_grouped[mykey]/sumwtotal) <= 2.0:
+            if (100*MCsamples_grouped[mykey]/sumwtotal) <= 2.4:
                 MCsamples_grouped['others'] += MCsamples_grouped[mykey]
                 key_del.append(mykey)
                 continue

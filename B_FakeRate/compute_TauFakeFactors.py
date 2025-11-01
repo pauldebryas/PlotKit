@@ -12,7 +12,7 @@ from B_FakeRate.helpers import compute_FakeRateData, compute_FakeRateMC, PrintCo
 #period = period of data taking
 period = '2018'
 #tag = tag used for anatuple production
-tag = 'AddJETcorr'
+tag = 'FinalProd'
 #bins = either int and bin size such that statistic is the same for all bins (same for pt and eta) or 'config' and pt and eta bins from config file 
 bins = 'config'
 #----------------------------------------------------------------------------------------------------------------

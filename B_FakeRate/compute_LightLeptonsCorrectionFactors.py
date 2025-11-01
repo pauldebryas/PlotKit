@@ -10,7 +10,7 @@ from common.helpers import load_ntuples
 #period = period of data taking
 period = '2018'
 #tag = tag used for anatuple production
-tag = 'LightLeptFFV2'
+tag = 'FinalProd'
 #RegionName = region where to compute corr factor
 RegionName = 'All'
 #----------------------------------------------------------------------------------------------------------------

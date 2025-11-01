@@ -5,7 +5,7 @@ import yaml
 from common.helpers import get_hnl_masses 
 
 # can be took from ssh://cern/afs/cern.ch/user/p/pdebryas/HNL_analysis/Analysis/LimitEstimation/CMSSW_11_3_4/src/HNLAnalysis/config.ini
-tag = 'AddJETcorr'
+tag = 'FinalProd'
 period = '2016_HIPM'
 channels = ['tee','tmm','tem','tte','ttm']
 plot_fig = False
@@ -101,7 +101,7 @@ def GetChi2(histogram):
 if __name__ == "__main__":
 
     ROOT.gStyle.SetOptStat(0)
-    channels = ['tee','tmm','tte','ttm','tem']
+    #channels = ['tee','tmm','tte','ttm','tem']
     for channel in channels:
         print(f'--------------------------------------------------- {channel} ---------------------------------------------------')
         vars = var_from_channel(channel)
@@ -167,9 +167,14 @@ if __name__ == "__main__":
                             bin_value_h1 = h1.GetBinContent(i)  # Get bin content
                             bin_error_h2_Up = h2_Up.GetBinError(i)  # Get bin error
                             bin_error_h2_Down = h2_Down.GetBinError(i)  # Get bin error
+                            bin_error_h1 = h1.GetBinError(i)  # Get bin content
+                            #print(bin_error_h1)
+                            rel_error = 0.01
                             if bin_value_h1 != 0:
-                                h2_ratio_Up.SetBinError(i, bin_error_h2_Up/bin_value_h1) 
-                                h2_ratio_Down.SetBinError(i, bin_error_h2_Down/bin_value_h1)
+                                #h2_ratio_Up.SetBinError(i, bin_error_h2_Up/bin_value_h1) 
+                                #h2_ratio_Down.SetBinError(i, bin_error_h2_Down/bin_value_h1)
+                                h2_ratio_Up.SetBinError(i, rel_error)
+                                h2_ratio_Down.SetBinError(i, rel_error)
                             else:
                                 h2_ratio_Up.SetBinError(i, 0) 
                                 h2_ratio_Down.SetBinError(i, 0)
@@ -177,7 +182,7 @@ if __name__ == "__main__":
                         chi2_Up, p_value_Up, fit_param_Up, fit_param_error_Up = GetChi2(h2_ratio_Up)
                         chi2_Down, p_value_Down, fit_param_Down, fit_param_error_Down = GetChi2(h2_ratio_Down)
 
-                        if (p_value_Up == 1.0) & (p_value_Down == 1.0):
+                        if (p_value_Up >= 0.05) & (p_value_Down >= 0.05):
                             lnN_or_Shape[process][corr]['type'] = 'lnN'
                             if min(chi2_Up, chi2_Down) == chi2_Up:
                                 lnN_or_Shape[process][corr]['fit_param'] = fit_param_Down
@@ -203,6 +208,8 @@ if __name__ == "__main__":
                                 lnN_or_Shape[process][corr]['p_value'] = p_value_Up
                         
                         if plot_fig:
+                        #print(f'{process}_{corr}')
+                        #if f'{process}_{corr}' == 'TrueLepton_GenuineTauESDM02018':
                             if (not process.startswith('HNL')) & (lnN_or_Shape[process][corr]['p_value'] < 0.97):
                                 if lnN_or_Shape[process][corr]['type'] == 'lnN':
                                     plot_fig_ratio(h1, h2_Up, corr, 'Up', channel, var, fit_param_Up)

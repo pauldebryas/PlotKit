@@ -30,6 +30,7 @@ def mk_smart_hist(hist, hist_desc):
     smart_hist.GetXaxis().SetTitle(hist_desc['x_title'])
   if 'y_title' in hist_desc:
     smart_hist.GetYaxis().SetTitle(hist_desc['y_title'])
+
   return smart_hist
 
 def to_str(value):
@@ -85,7 +86,7 @@ class Plotter(object):
     self.page = LoadPageOptions(self.page_cfg['page_setup'])
 
 
-  def plot(self, hist_name, histograms, output_file, custom=None, HNL_mass='HNL300', Unblind_data=False):
+  def plot(self, hist_name, histograms, output_file, custom=None, HNL_mass='HNL300', Unblind_data=False, PlotSignalOff=False):
 
     page_cfg = copy.deepcopy(self.page_cfg)
     if custom:
@@ -106,8 +107,9 @@ class Plotter(object):
       if (hist_type == 'signal'):
         if name == HNL_mass:
           smart_hists[name] = mk_smart_hist(histograms[name], self.hist_cfg[hist_name])
-          desc.AddSignalHistogram(smart_hists[name], input['title'], ROOT.root_ext.Color.Parse(input['color']),
-                                  input.get('scale', 1.))
+          if not PlotSignalOff:
+            desc.AddSignalHistogram(smart_hists[name], input['title'], ROOT.root_ext.Color.Parse(input['color']),
+                                    input.get('scale', 1.))
       elif hist_type == 'background':
         smart_hists[name] = mk_smart_hist(histograms[name], self.hist_cfg[hist_name])
         desc.AddBackgroundHistogram(smart_hists[name], input['title'], ROOT.root_ext.Color.Parse(input['color']))

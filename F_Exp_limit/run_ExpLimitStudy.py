@@ -5,7 +5,7 @@ import yaml
 from array import array
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 
-tag = 'AddJETcorr'
+tag = 'FinalProd'
 period = 'All' # 'All' if all year combined, else '2018', ...
 
 # MAIN
@@ -128,21 +128,21 @@ def main():
         graph3.Draw("C SAME") 
         legend.AddEntry(graph3, var, "l")
 
-        # # Create a TGraph
-        # var = var_to_compare[3]
-        # graph4 = ROOT.TGraph(len(x_values), array('d', x_values), array('d', y_values[var]))
-        # graph4.SetLineStyle(1)
-        # graph4.SetLineColor(4)
-        # graph4.Draw("C SAME") 
-        # legend.AddEntry(graph4, var, "l")
+        # Create a TGraph
+        var = var_to_compare[3]
+        graph4 = ROOT.TGraph(len(x_values), array('d', x_values), array('d', y_values[var]))
+        graph4.SetLineStyle(1)
+        graph4.SetLineColor(4)
+        graph4.Draw("C SAME") 
+        legend.AddEntry(graph4, var, "l")
 
-        # #Create a TGraph
-        # var = var_to_compare[4]
-        # graph5 = ROOT.TGraph(len(x_values), array('d', x_values), array('d', y_values[var]))
-        # graph5.SetLineStyle(1)
-        # graph5.SetLineColor(5)
-        # graph5.Draw("C SAME") 
-        # legend.AddEntry(graph5, var, "l")
+        #Create a TGraph
+        var = var_to_compare[4]
+        graph5 = ROOT.TGraph(len(x_values), array('d', x_values), array('d', y_values[var]))
+        graph5.SetLineStyle(1)
+        graph5.SetLineColor(5)
+        graph5.Draw("C SAME") 
+        legend.AddEntry(graph5, var, "l")
 
         canvas.Update()
 

@@ -4,10 +4,10 @@ import uproot
 import numpy as np
 
 # ------------------------- Parameters -------------------------
-period= '2018'
-tag = 'AddJETcorr'
-test = False
-files_to_merge = ['ZZ_anatuple.root'] # files to merge in test mode
+period= '2017'
+tag = 'FinalProd'
+test = True
+files_to_merge = ['WminusHToTauTau_anatuple.root'] # files to merge in test mode
 # --------------------------------------------------------------
 
 def get_common_files(folder1, folder2):

@@ -4,6 +4,7 @@ import uproot
 import os
 import awkward as ak
 import yaml
+import re
 
 def compute_var_to_plot(tree, hist_name, CorrFactor = None):
 
@@ -153,7 +154,7 @@ def compute_var_to_plot(tree, hist_name, CorrFactor = None):
     return var_to_plot
   
   if hist_name.startswith('DNNscore'):
-    return tree['DNNscore']
+    return tree[hist_name]
   
   print('Error compute_var_to_plot function do not find the variable')
   return 
@@ -180,7 +181,11 @@ def lepton_pt_corr(tree, Lepton, CorrFactor):
     if CorrFactor == None:
        print('Error: Missing CorrFactor')
     lepton_pt = tree[f'{Lepton}_pt']
-    parton_pt = np.concatenate(tree[f'{Lepton}_ConeCorrectedPt'])* CorrFactor[Lepton]
+    if Lepton in ['Electron', 'Muon']:
+       LeptonFlavor = Lepton
+    else:
+        LeptonFlavor = Lepton[0:-1]
+    parton_pt = np.concatenate(tree[f'{Lepton}_ConeCorrectedPt'])* CorrFactor[LeptonFlavor]
     pt_corr = np.where(tree[f'{Lepton}_pfRelIso03_all'] < 0.15, lepton_pt, parton_pt)
     return pt_corr
 
@@ -298,7 +303,7 @@ def ToRootHist_val(h, flow = False):
 def ToRootHist(h, hist_name, flow=False):
     
     if hist_name == 'FakeBackground':
-       sys_fraction = 0.2
+       sys_fraction = 0.3
     else:
        sys_fraction = 0.
 
@@ -308,7 +313,7 @@ def ToRootHist(h, hist_name, flow=False):
 
     for i in range(len(x_bins) - 1):
         stat_unc = h.variances()[i] ** 0.5  # Statistical error
-        sys_unc = sys_fraction * h.values()[i]  # 20% systematic error
+        sys_unc = sys_fraction * h.values()[i]  # 30% systematic error
         total_unc = (stat_unc**2 + sys_unc**2) ** 0.5  # Combine in quadrature
 
         root_hist.SetBinContent(i + 1, h.values()[i])
@@ -394,6 +399,7 @@ def load_xbins(hist_cfg, hist_name):
   x_bins = hist_desc['x_bins']
   if x_bins == 'config':
       namelightlepton = hist_name.split('_')[0]
+      namelightlepton = re.sub(r'\d+$', '', namelightlepton)
       var = hist_name.split('_')[1]
       with open(f'{os.getenv("RUN_PATH")}/common/config/all/bin_FR.yaml', 'r') as f:
           binsconfig = yaml.safe_load(f)

@@ -5,7 +5,7 @@ from A_cutflow.helpers import save_sumwEvents, save_info_XsecUnc
 #period = period of data taking
 period = '2016_HIPM'
 #tag = tag used for anatuple production
-tag = 'AddJETcorr'
+tag = 'FinalProd'
 #region_name = region where MC background is studied
 region_name = 'SignalRegion'
 #----------------------------------------------------------------------------------------------------------------

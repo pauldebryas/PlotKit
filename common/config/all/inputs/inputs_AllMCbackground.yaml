@@ -1,7 +1,7 @@
 - name: DY
   title: "DY #rightarrow ll + jets"
   type: background
-  color: kYellow
+  color: kYellow-7
   files:
   - DYJetsToLL_M-50_anatuple.root
   - DYJetsToLL_0J_anatuple.root
@@ -16,7 +16,7 @@
 - name: diBoson
   title: "diBoson"
   type: background
-  color: kRed
+  color: kRed-3
   files:
   - ZZ_anatuple.root
   - WW_anatuple.root
@@ -24,7 +24,7 @@
 - name: EWK
   title: "Electroweak"
   type: background
-  color: kPink
+  color: kMagenta-3
   files:
   - EWKWMinus2Jets_WToLNu_M-50_anatuple.root
   - EWKWPlus2Jets_WToLNu_M-50_anatuple.root
@@ -32,7 +32,7 @@
 - name: TT
   title: t#bar{t}
   type: background
-  color: kMagenta
+  color: kPink+1
   files:
   - TTTo2L2Nu_anatuple.root
   - TTToSemiLeptonic_anatuple.root
@@ -40,7 +40,7 @@
 - name: WJetsToLNu
   title: "W+jets #rightarrow l #nu"
   type: background
-  color: kViolet
+  color: kViolet-3
   files:
   - WJetsToLNu_anatuple.root
   - W1JetsToLNu_anatuple.root
@@ -58,7 +58,7 @@
 - name: ST
   title: "Single top"
   type: background
-  color: kBlue
+  color: kPink+4
   files:
   - ST_t-channel_antitop_4f_InclusiveDecays_anatuple.root
   - ST_t-channel_top_4f_InclusiveDecays_anatuple.root
@@ -67,7 +67,7 @@
 - name: triBoson
   title: "triBoson"
   type: background
-  color: kAzure
+  color: kRed-9
   files:
   - WWW_anatuple.root
   - WWZ_anatuple.root
@@ -76,7 +76,7 @@
 - name: Higgs
   title: "Higgs"
   type: background
-  color: kCyan
+  color: kTeal+6
   files:
   - ttHToTauTau_anatuple.root
   - ZHToTauTau_anatuple.root
@@ -86,10 +86,15 @@
 - name: TTboson
   title: "TT + boson(s)"
   type: background
-  color: kTeal
+  color: kGreen-3
   files:
   - TTWJetsToLNu_anatuple.root
   - TTWW_anatuple.root
   - TTWZ_anatuple.root
   - TTZToLLNuNu_M-10_anatuple.root
   - TTZZ_anatuple.root
+# - name: otherbackgrounds
+#   title: "other backgrounds"
+#   color: kSpring-7
+#   type: background
+#   files:

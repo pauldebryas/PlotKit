@@ -1,7 +1,7 @@
 - name: DY
   title: "DY #rightarrow ll + jets"
   type: background
-  color: kYellow
+  color: kYellow-7
   files:
   - DYJetsToLL_M-50_anatuple.root
   - DYJetsToLL_0J_anatuple.root
@@ -13,25 +13,59 @@
   - DYJetsToLL_LHEFilterPtZ-250To400_anatuple.root
   - DYJetsToLL_LHEFilterPtZ-400To650_anatuple.root
   - DYJetsToLL_LHEFilterPtZ-650ToInf_anatuple.root
+- name: diBoson
+  title: "diBoson"
+  type: background
+  color: kRed-3
+  files:
+  - ZZ_anatuple.root
+  - WW_anatuple.root
+  - WZ_anatuple.root
 - name: TT
   title: t#bar{t}
   type: background
-  color: kGreen-2
+  color: kPink+1
   files:
   - TTTo2L2Nu_anatuple.root
   - TTToSemiLeptonic_anatuple.root
   - TTToHadronic_anatuple.root
-- name: other_background
-  title: "other backgrounds"
+- name: ST
+  title: "Single top"
   type: background
-  color: kBlue-3
+  color: kPink+4
+  files:
+  - ST_t-channel_antitop_4f_InclusiveDecays_anatuple.root
+  - ST_t-channel_top_4f_InclusiveDecays_anatuple.root
+  - ST_tW_antitop_5f_inclusiveDecays_anatuple.root
+  - ST_tW_top_5f_inclusiveDecays_anatuple.root
+- name: Higgs
+  title: "Higgs"
+  type: background
+  color: kTeal+6
+  files:
+  - ttHToTauTau_anatuple.root
+  - ZHToTauTau_anatuple.root
+  - GluGluHToTauTau_anatuple.root
+  - WminusHToTauTau_anatuple.root
+  - WplusHToTauTau_anatuple.root
+- name: TTboson
+  title: "TT + boson(s)"
+  type: background
+  color: kGreen-3
+  files:
+  - TTWJetsToLNu_anatuple.root
+  - TTWW_anatuple.root
+  - TTWZ_anatuple.root
+  - TTZToLLNuNu_M-10_anatuple.root
+  - TTZZ_anatuple.root
+- name: otherbackgrounds
+  title: "other backgrounds"
+  color: kSpring-7
+  type: background
   files:
   - EWKWMinus2Jets_WToLNu_M-50_anatuple.root
   - EWKWPlus2Jets_WToLNu_M-50_anatuple.root
   - EWKZ2Jets_ZToLL_M-50_anatuple.root
-  - ZZ_anatuple.root
-  - WW_anatuple.root
-  - WZ_anatuple.root
   - WJetsToLNu_anatuple.root
   - W1JetsToLNu_anatuple.root
   - W2JetsToLNu_anatuple.root
@@ -45,23 +79,7 @@
   - WJetsToLNu_HT-800To1200_anatuple.root
   - WJetsToLNu_HT-1200To2500_anatuple.root
   - WJetsToLNu_HT-2500ToInf_anatuple.root
-  - ST_t-channel_antitop_4f_InclusiveDecays_anatuple.root
-  - ST_t-channel_top_4f_InclusiveDecays_anatuple.root
-  - ST_tW_antitop_5f_inclusiveDecays_anatuple.root
-  - ST_tW_top_5f_inclusiveDecays_anatuple.root
-  - TTWJetsToLNu_anatuple.root
-  - TTWW_anatuple.root
-  - TTWZ_anatuple.root
-  - TTZToLLNuNu_M-10_anatuple.root
-  - TTZZ_anatuple.root
   - WWW_anatuple.root
   - WWZ_anatuple.root
   - WZZ_anatuple.root
   - ZZZ_anatuple.root
-  - ttHToTauTau_anatuple.root
-  - ZHToTauTau_anatuple.root
-  - GluGluHToTauTau_anatuple.root
-  - WminusHToTauTau_anatuple.root
-  - WplusHToTauTau_anatuple.root
-#  - WToTauNu_M-200_anatuple.root
-#  - WToMuNu_M-200_anatuple.root

@@ -39,7 +39,25 @@ def load_inputs(BCKestimationMethod, period, channel):
         with open(f'{os.getenv("RUN_PATH")}/common/config/{period}/hnl/hnl_{channel}/inputs_data.yaml', 'r') as f:
             data_inputs = yaml.safe_load(f)
         inputs.append(data_inputs[0])
-    
+
+    if BCKestimationMethod in ['MonteCarlo']:
+        #load MC background
+        with open(os.path.join(config_path_BCKG, f'inputs_MainMCbackground_{channel}.yaml'), 'r') as f:
+            MC_inputs = yaml.safe_load(f)
+        for i in range(len(MC_inputs)):
+            inputs.append(MC_inputs[i])
+
+        #load signal
+        with open(os.path.join(config_path_BCKG, 'inputs_AllSignal.yaml'), 'r') as f:
+            signal_inputs = yaml.safe_load(f)
+        for i in range(len(signal_inputs)):
+            inputs.append(signal_inputs[i])
+
+        #load data
+        with open(f'{os.getenv("RUN_PATH")}/common/config/{period}/hnl/hnl_{channel}/inputs_data.yaml', 'r') as f:
+            data_inputs = yaml.safe_load(f)
+        inputs.append(data_inputs[0])
+
     if len(inputs) == 0:
         raise (f'{BCKestimationMethod} not inplemented in load_inputs')
     
@@ -63,7 +81,7 @@ class MakeTH1Hist(Task, HTCondorWorkflow, law.LocalWorkflow):
         if self.channel not in ['ttm', 'tmm', 'tte', 'tee', 'tem', 'Zmu', 'Ze', 'tll', 'llmu', 'lle']:
             raise "channel parameter not valid"
         
-        if self.tag == 'LightLeptFFV2':
+        if self.channel in ['Zmu', 'Ze', 'llmu', 'lle']:
             anatuple_path = os.path.join('/eos/user/p/pdebryas/HNL_LLFF/anatuple', self.period)
         else:
             anatuple_path = os.path.join('/eos/user/p/pdebryas/HNL/anatuple', self.period)
@@ -125,7 +143,7 @@ class MakeTH1Hist(Task, HTCondorWorkflow, law.LocalWorkflow):
                 for file in files:
                     if not os.path.isfile(os.path.join(self.input_folder, file)):
                         print(f'missing file: {os.path.join(self.input_folder, file)}')
-                        raise(f'missing file')
+                        #raise(f'missing file')
         var = self.vars[self.branch]
 
         print("---------------------- Producing TH1Hists for "+ var + " in " + self.PlotRegion+ " ----------------------")
@@ -153,6 +171,7 @@ class RunCMSPlot(Task, HTCondorWorkflow, law.LocalWorkflow):
     BCKestimation = luigi.Parameter()
     PlotRegion = luigi.Parameter()
     UnblindData = luigi.BoolParameter(default=False)
+    PlotSignalOff = luigi.BoolParameter(default=False)
 
     def workflow_requires(self):
         return { "TH1Hist": MakeTH1Hist.req(self, branch=self.branch) }
@@ -198,22 +217,52 @@ class RunCMSPlot(Task, HTCondorWorkflow, law.LocalWorkflow):
             self.custom_title ="cat_text=#tau_{h} e e"
 
         if self.channel == 'tem':
-            self.custom_title ="cat_text=#tau_{h} e #mu"
+            if self.PlotRegion == 'ttbarRegionFR':
+                self.custom_title ="cat_text=CR_{#tau}^{t#bar{t}}"
+            else:
+                self.custom_title ="cat_text=#tau_{h} e #mu"
 
         if self.channel == 'Zmu':
-            self.custom_title ="cat_text=Z#mu"
+            if self.PlotRegion == 'DYRegionFR':
+                self.custom_title ="cat_text=CR_{#mu}^{DY}"
+            elif self.PlotRegion == 'DYRegionValidation':
+                self.custom_title ="cat_text=VR_{#mu}^{DY}"
+            else:
+                self.custom_title ="cat_text=Z#mu"
 
         if self.channel == 'Ze':
-            self.custom_title ="cat_text=Ze"
+            if self.PlotRegion == 'DYRegionFR':
+                self.custom_title ="cat_text=CR_{e}^{DY}"
+            elif self.PlotRegion == 'DYRegionValidation':
+                self.custom_title ="cat_text=VR_{e}^{DY}"
+            else:
+                self.custom_title ="cat_text=Ze"
 
         if self.channel == 'tll':
-            self.custom_title ="cat_text=tll"
+            if self.PlotRegion == 'ttbarRegionValidation':
+                self.custom_title ="cat_text=VR_{#tau}^{t#bar{t}}"
+            elif self.PlotRegion == 'DYRegionFR':
+                self.custom_title ="cat_text=CR_{#tau}^{DY}"
+            elif self.PlotRegion == 'DYRegionValidation':
+                self.custom_title ="cat_text=VR_{#tau}^{DY}"
+            else:
+                self.custom_title ="cat_text=tll"
 
         if self.channel == 'llmu':
-            self.custom_title ="cat_text=t#bar{t}"
+            if self.PlotRegion == 'ttbarRegionFR':
+                self.custom_title ="cat_text=CR_{#mu}^{t#bar{t}}"
+            elif self.PlotRegion == 'ttbarRegionValidation':
+                self.custom_title ="cat_text=VR_{#mu}^{t#bar{t}}"
+            else:
+                self.custom_title ="cat_text=t#bar{t}"
 
         if self.channel == 'lle':
-            self.custom_title ="cat_text=t#bar{t}"
+            if self.PlotRegion == 'ttbarRegionFR':
+                self.custom_title ="cat_text=CR_{e}^{t#bar{t}}"
+            elif self.PlotRegion == 'ttbarRegionValidation':
+                self.custom_title ="cat_text=VR_{e}^{t#bar{t}}"
+            else:
+                self.custom_title ="cat_text=t#bar{t}"
 
         return
     
@@ -254,6 +303,6 @@ class RunCMSPlot(Task, HTCondorWorkflow, law.LocalWorkflow):
             nameDir = self.PlotRegion
         
         hists = load_root_file(TH1Histfile, nameDir)
-        plotter.plot(var, hists, path_pdf_file, custom=custom, HNL_mass=f'HNL{MassHNL_Hyp}', Unblind_data = self.UnblindData)
+        plotter.plot(var, hists, path_pdf_file, custom=custom, HNL_mass=f'HNL{MassHNL_Hyp}', Unblind_data = self.UnblindData , PlotSignalOff = self.PlotSignalOff)
         return
 

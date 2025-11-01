@@ -62,7 +62,7 @@ def mass_l1l2l3(tree, Lepton1, Lepton2, Lepton3):
 
     return np.sqrt(total_E**2 - (total_px**2 + total_py**2 + total_pz**2))
 
-def Z_cut_OSSF(tree, Lepton1, Lepton2, interval = 15.):
+def Z_cut_OSSF(tree, Lepton1, Lepton2, interval = 10.):
   if Lepton1[:-1] != Lepton2[:-1]:
     print('!!!!! Warning: lepton1 and lepton2 must have the same flavor.')
   SSLepton_mask = (tree[f'{Lepton1}_charge'] == tree[f'{Lepton2}_charge'])

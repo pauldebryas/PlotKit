@@ -5,19 +5,23 @@ import numpy as np
 '''
 Plot diff between 2 sets of fake rates
 '''
-
 # Parameters -----------------------------------------------------------------------------------------------------
 # First FR to compare
-path_to_json_FR1 = 'B_FakeRate/results/LightLeptFFV2/2017/FakeFactorsMuon/DYRegion/' 
-json_file_FR1 =    'P_fake_TL_Muon'
+path_to_json_FR1 = 'B_FakeRate/results/FinalProd/2018/FakeFactorsTau/DYRegionFR/'
+json_file_FR1 =    'P_fake_TL_Tau'
 # Second FR to compare
-path_to_json_FR2 = 'B_FakeRate/results/LightLeptFFV2/2017/FakeFactorsMuon/ttbarRegion/'
-json_file_FR2 = 'P_fake_TL_Muon'
+path_to_json_FR2 = 'B_FakeRate/results/FinalProd/2018/FakeFactorsTau/DYRegionFR/'
+json_file_FR2 =    'P_fake_TL_Tau_MC'
 # Name of the out figure
-output_figures =   'B_FakeRate/figures/LightLeptFFV2/2017/FakeFactorsMuon/diff_FR_DY_ttbar.pdf'
+output_figures =   'B_FakeRate/figures/FinalProd/2018/FakeFactorsTau/DYRegionFR/diff_FR_data_MC.pdf'
 # Label for figure
-x_label = r'$p_T^{corr}$ [GeV]'
-y_label = r'$\Delta FF (DY-t\bar{t})$'
+x_label = r'$p_T$ [GeV]' #r'$p_T^{corr}$ [GeV]'
+ptlabel = r'$p_T$'
+y_label = (
+    r'$f_{\tau}^{DY}(\mathrm{data})$' "\n"
+    r'$-$' "\n"
+    r'$f_{\tau}^{DY}(\mathrm{MC})$'
+)
 # ----------------------------------------------------------------------------------------------------------------
 
 # Load the JSON file 
@@ -89,8 +93,8 @@ for i in range(len(eta_bins) - 1):
 #fig.colorbar(c, cax=cbar_ax)
         
 # Set labels for the main plot
-ax_main.set_xlabel(x_label)
-ax_main.set_ylabel(r'$|\eta|$')
+ax_main.set_xlabel(x_label, fontsize=17)
+ax_main.set_ylabel(r'$|\eta|$', fontsize=17)
 
 # Plot the projection on the X axis (pt)
 pt_projection = np.mean(diff_sfhist, axis=1)
@@ -98,7 +102,7 @@ pt_projection_err = np.sqrt(np.mean(err_diff_sfhist**2, axis=1))
 ax_x.plot(pt_bins[:-1] + np.diff(pt_bins)/2, pt_projection, color='blue')
 ax_x.fill_between(pt_bins[:-1] + np.diff(pt_bins)/2, pt_projection - pt_projection_err, pt_projection + pt_projection_err, color='blue', alpha=0.3)  # Error band
 ax_x.axhline(0, color='black', linestyle='--')  # Line at y = 0
-ax_x.set_ylabel(y_label)
+ax_x.set_ylabel('Proj. along ' + ptlabel, fontsize=12)
 ax_x.set_xscale('log')
 
 # Plot the projection on the Y axis (eta)
@@ -107,11 +111,19 @@ eta_projection_err = np.sqrt(np.mean(err_diff_sfhist**2, axis=0))  # Uncertainty
 ax_y.plot(eta_projection, eta_bins[:-1] + np.diff(eta_bins)/2, color='blue')
 ax_y.fill_betweenx(eta_bins[:-1] + np.diff(eta_bins)/2, eta_projection - eta_projection_err, eta_projection + eta_projection_err, color='blue', alpha=0.3)  # Error band
 ax_y.axvline(0, color='black', linestyle='--')  # Line at x = 0
-ax_y.set_xlabel(y_label)
+ax_y.set_xlabel(r'Proj. along $|\eta|$', fontsize=12)
 
 # Tight layout for better spacing
 plt.tight_layout()
 
+fig.text(
+    0.87, 0.97,
+    y_label, 
+    ha='center', 
+    va='top', 
+    fontsize=30, 
+    fontweight='bold'
+)
+
 # Save the figure
 plt.savefig(output_figures)
-

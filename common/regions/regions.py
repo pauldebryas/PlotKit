@@ -89,6 +89,8 @@ def compute_region_mask(tree, channel, type, RegionName):
 
           #used for TauFRwightsDYttbar
           cut_region[f'{RegionName}_PassLooseNotTightWP_NotTrueLeptons'] = passLooseNotTightWP & ~(TauIsPromptLepton & Muon1IsPromptLepton & Muon2IsPromptLepton)
+          cut_region[f'{RegionName}_FmuAR_NotTrueLeptons'] = passLooseWP & (~mu1_iso|~mu2_iso) & ~(TauIsPromptLepton & Muon1IsPromptLepton & Muon2IsPromptLepton)
+          cut_region[f'{RegionName}_FtauAR_NotTrueLeptons'] = passLooseWP & ~Tau_VSJet & ~(TauIsPromptLepton & Muon1IsPromptLepton & Muon2IsPromptLepton)
 
           #used in MCFakeFactor computation
           cut_region[f'{RegionName}_PassLooseWP_FakeTau'] = passLooseWP & ~TauIsPromptLepton
@@ -202,6 +204,8 @@ def compute_region_mask(tree, channel, type, RegionName):
 
           cut_region[f'{RegionName}_PassTightWP_TrueLeptons'] = passTightWP & TauIsPromptLepton & Electron1IsPromptLepton & Electron2IsPromptLepton
           cut_region[f'{RegionName}_PassLooseNotTightWP_NotTrueLeptons'] = passLooseNotTightWP & ~(TauIsPromptLepton & Electron1IsPromptLepton & Electron2IsPromptLepton)
+          cut_region[f'{RegionName}_FeAR_NotTrueLeptons'] = passLooseWP & (~e1_iso|~e2_iso) & ~(TauIsPromptLepton & Electron1IsPromptLepton & Electron2IsPromptLepton)
+          cut_region[f'{RegionName}_FtauAR_NotTrueLeptons'] = passLooseWP & ~Tau_VSJet & ~(TauIsPromptLepton & Electron1IsPromptLepton & Electron2IsPromptLepton)
 
           cut_region[f'{RegionName}_PassLooseWP_FakeTau'] = passLooseWP & ~TauIsPromptLepton
           cut_region[f'{RegionName}_PassLooseWP_FakeTau_passTight'] = passLooseWP & ~TauIsPromptLepton & Tau_VSJet
@@ -239,7 +243,6 @@ def compute_region_mask(tree, channel, type, RegionName):
             cut_region[f'{RegionName}_AppRegionPFP_TrueLepton'] = passLooseWP &  Tau_VSJet & ~e1_iso &  e2_iso & Electron1IsPromptLepton
             cut_region[f'{RegionName}_AppRegionPPF_TrueLepton'] = passLooseWP &  Tau_VSJet &  e1_iso & ~e2_iso & Electron2IsPromptLepton
 
-            
   if channel == 'tem':
       #leptons ID
       mu_iso = tree["Muon_pfRelIso03_all"]  <= 0.15
@@ -303,6 +306,9 @@ def compute_region_mask(tree, channel, type, RegionName):
         
           cut_region[f'{RegionName}_PassTightWP_TrueLeptons'] = passTightWP & TauIsPromptLepton & ElectronIsPromptLepton & MuonIsPromptLepton
           cut_region[f'{RegionName}_PassLooseNotTightWP_NotTrueLeptons'] = passLooseNotTightWP & ~(TauIsPromptLepton & ElectronIsPromptLepton & MuonIsPromptLepton)
+          cut_region[f'{RegionName}_FeAR_NotTrueLeptons'] = passLooseWP & ~e_iso & ~(TauIsPromptLepton & ElectronIsPromptLepton & MuonIsPromptLepton)
+          cut_region[f'{RegionName}_FmuAR_NotTrueLeptons'] = passLooseWP & ~mu_iso & ~(TauIsPromptLepton & ElectronIsPromptLepton & MuonIsPromptLepton)
+          cut_region[f'{RegionName}_FtauAR_NotTrueLeptons'] = passLooseWP & ~Tau_VSJet & ~(TauIsPromptLepton & ElectronIsPromptLepton & MuonIsPromptLepton)
 
           cut_region[f'{RegionName}_PassLooseWP_FakeTau'] = passLooseWP & ~TauIsPromptLepton
           cut_region[f'{RegionName}_PassLooseWP_FakeTau_passTight'] = passLooseWP & ~TauIsPromptLepton & Tau_VSJet
@@ -314,6 +320,8 @@ def compute_region_mask(tree, channel, type, RegionName):
           cut_region[f'{RegionName}_PassLooseWP_TauIsPromptLepton'] = passLooseWP & TauIsPromptLepton
           cut_region[f'{RegionName}_PassTightWP_TauIsPromptLepton'] = passTightWP & TauIsPromptLepton
           cut_region[f'{RegionName}_PassLooseNotTightWP_TauIsPromptLepton'] = passLooseNotTightWP & TauIsPromptLepton
+          cut_region[f'{RegionName}_PassLooseNotTightWP_TauIsNotPromptLepton'] = passLooseNotTightWP & ~TauIsPromptLepton
+          cut_region[f'{RegionName}_PassLooseWP_TauIsNotPromptLepton'] = passLooseWP & ~TauIsPromptLepton
 
           cut_region[f'{RegionName}_PassLooseWP_ElectronIsPromptLepton'] = passLooseWP & ElectronIsPromptLepton
           cut_region[f'{RegionName}_PassTightWP_ElectronIsPromptLepton'] = passTightWP & ElectronIsPromptLepton
@@ -349,17 +357,17 @@ def compute_region_mask(tree, channel, type, RegionName):
       #common cuts
       no_samesign = (tree["Electron_charge"]  != tree["Tau1_charge"] ) | (tree["Electron_charge"]  != tree["Tau2_charge"] )
       met_cut = MET_cut(tree,  25.)
-      Zcut = Z_cut_OSSF(tree, 'Tau1', 'Tau2')
+      #Zcut = Z_cut_OSSF(tree, 'Tau1', 'Tau2')
       LowMasscut = LowMass_cut_OSSF(tree, 'Tau1', 'Tau2')
       no_bjets = tree["nbjetsLoose"]  == 0
 
       if RegionName == 'SignalRegion':
-        passLooseWP = no_samesign & met_cut & Zcut  & LowMasscut & no_bjets 
+        passLooseWP = no_samesign & met_cut & LowMasscut & no_bjets #& Zcut
         passTightWP = passLooseWP & Tau1_VSJet & Tau2_VSJet & e_iso
         passLooseNotTightWP = passLooseWP & ~(Tau1_VSJet & Tau2_VSJet & e_iso)
 
       if RegionName == 'InvertedBjetsVetoRegion':
-        passLooseWP = no_samesign & met_cut & Zcut  & LowMasscut & ~no_bjets 
+        passLooseWP = no_samesign & met_cut & LowMasscut & ~no_bjets #& Zcut
         passTightWP = passLooseWP & Tau1_VSJet & Tau2_VSJet & e_iso
         passLooseNotTightWP = passLooseWP & ~(Tau1_VSJet & Tau2_VSJet & e_iso)
 
@@ -369,7 +377,7 @@ def compute_region_mask(tree, channel, type, RegionName):
         passLooseNotTightWP = passLooseWP & ~(Tau1_VSJet & Tau2_VSJet & e_iso)
 
       if RegionName == 'ValidationRegionEleFR':
-        passLooseWP = ~Zcut & Tau1_VSJet & Tau2_VSJet 
+        passLooseWP = Tau1_VSJet & Tau2_VSJet #& ~Zcut
         passTightWP = passLooseWP & e_iso 
         passLooseNotTightWP = passLooseWP & ~e_iso
 
@@ -393,6 +401,8 @@ def compute_region_mask(tree, channel, type, RegionName):
 
           cut_region[f'{RegionName}_PassTightWP_TrueLeptons'] = passTightWP & Tau1IsPromptLepton & Tau2IsPromptLepton & ElectronIsPromptLepton
           cut_region[f'{RegionName}_PassLooseNotTightWP_NotTrueLeptons'] = passLooseNotTightWP & ~(Tau1IsPromptLepton & Tau2IsPromptLepton & ElectronIsPromptLepton)
+          cut_region[f'{RegionName}_FeAR_NotTrueLeptons'] = passLooseWP & ~e_iso & ~(Tau1IsPromptLepton & Tau2IsPromptLepton & ElectronIsPromptLepton)
+          cut_region[f'{RegionName}_FtauAR_NotTrueLeptons'] = passLooseWP & (~Tau1_VSJet|~Tau2_VSJet) & ~(Tau1IsPromptLepton & Tau2IsPromptLepton & ElectronIsPromptLepton)
 
           cut_region[f'{RegionName}_PassLooseWP_FakeTau1'] = passLooseWP & ~Tau1IsPromptLepton
           cut_region[f'{RegionName}_PassLooseWP_FakeTau1_passTight'] = passLooseWP & ~Tau1IsPromptLepton & Tau1_VSJet
@@ -417,7 +427,7 @@ def compute_region_mask(tree, channel, type, RegionName):
             cut_region[f'{RegionName}_AppRegionPFF_TrueLepton'] = passLooseWP &  Tau1_VSJet & ~Tau2_VSJet & ~e_iso & (Tau2IsPromptLepton & ElectronIsPromptLepton)
             cut_region[f'{RegionName}_AppRegionPFP_TrueLepton'] = passLooseWP &  Tau1_VSJet & ~Tau2_VSJet &  e_iso & Tau2IsPromptLepton
             cut_region[f'{RegionName}_AppRegionPPF_TrueLepton'] = passLooseWP &  Tau1_VSJet &  Tau2_VSJet & ~e_iso & ElectronIsPromptLepton
-      
+
   if channel == 'ttm':
       #leptons ID
       mu_iso = tree["Muon_pfRelIso03_all"] <= 0.15
@@ -427,17 +437,17 @@ def compute_region_mask(tree, channel, type, RegionName):
       #common cuts
       no_samesign = (tree["Muon_charge"]  != tree["Tau1_charge"] ) | (tree["Muon_charge"]  != tree["Tau2_charge"] )
       met_cut = MET_cut(tree,  25.)
-      Zcut = Z_cut_OSSF(tree, 'Tau1', 'Tau2')
+      #Zcut = Z_cut_OSSF(tree, 'Tau1', 'Tau2')
       LowMasscut = LowMass_cut_OSSF(tree, 'Tau1', 'Tau2')
       no_bjets = tree["nbjetsLoose"]  == 0
 
       if RegionName == 'SignalRegion':
-        passLooseWP = no_samesign & met_cut & Zcut  & LowMasscut & no_bjets 
+        passLooseWP = no_samesign & met_cut & LowMasscut & no_bjets #& Zcut
         passTightWP = passLooseWP & Tau1_VSJet & Tau2_VSJet & mu_iso
         passLooseNotTightWP = passLooseWP & ~(Tau1_VSJet & Tau2_VSJet & mu_iso)
 
       if RegionName == 'InvertedBjetsVetoRegion':
-        passLooseWP = no_samesign & met_cut & Zcut  & LowMasscut & ~no_bjets
+        passLooseWP = no_samesign & met_cut & LowMasscut & ~no_bjets #& Zcut
         passTightWP = passLooseWP & Tau1_VSJet & Tau2_VSJet & mu_iso
         passLooseNotTightWP = passLooseWP & ~(Tau1_VSJet & Tau2_VSJet & mu_iso)
 
@@ -447,7 +457,7 @@ def compute_region_mask(tree, channel, type, RegionName):
         passLooseNotTightWP = passLooseWP & ~(Tau1_VSJet & Tau2_VSJet & mu_iso)
 
       if RegionName == 'ValidationRegionMuFR':
-        passLooseWP = ~Zcut & Tau1_VSJet & Tau2_VSJet
+        passLooseWP = Tau1_VSJet & Tau2_VSJet #& ~Zcut
         passTightWP = passLooseWP & mu_iso 
         passLooseNotTightWP = passLooseWP & ~mu_iso
 
@@ -471,6 +481,8 @@ def compute_region_mask(tree, channel, type, RegionName):
           
           cut_region[f'{RegionName}_PassTightWP_TrueLeptons'] = passTightWP & Tau1IsPromptLepton & Tau2IsPromptLepton & MuonIsPromptLepton
           cut_region[f'{RegionName}_PassLooseNotTightWP_NotTrueLeptons'] = passLooseNotTightWP & ~(Tau1IsPromptLepton & Tau2IsPromptLepton & MuonIsPromptLepton)
+          cut_region[f'{RegionName}_FmuAR_NotTrueLeptons'] = passLooseWP & ~mu_iso & ~(Tau1IsPromptLepton & Tau2IsPromptLepton & MuonIsPromptLepton)
+          cut_region[f'{RegionName}_FtauAR_NotTrueLeptons'] = passLooseWP & (~Tau1_VSJet|~Tau2_VSJet) & ~(Tau1IsPromptLepton & Tau2IsPromptLepton & MuonIsPromptLepton)
 
           cut_region[f'{RegionName}_PassLooseWP_FakeTau1'] = passLooseWP & ~Tau1IsPromptLepton
           cut_region[f'{RegionName}_PassLooseWP_FakeTau1_passTight'] = passLooseWP & ~Tau1IsPromptLepton & Tau1_VSJet
@@ -500,12 +512,13 @@ def compute_region_mask(tree, channel, type, RegionName):
             cut_region[f'{RegionName}_AppRegionPFF_TrueLepton'] = passLooseWP &  Tau1_VSJet & ~Tau2_VSJet & ~mu_iso & (Tau2IsPromptLepton & MuonIsPromptLepton)
             cut_region[f'{RegionName}_AppRegionPFP_TrueLepton'] = passLooseWP &  Tau1_VSJet & ~Tau2_VSJet &  mu_iso & Tau2IsPromptLepton
             cut_region[f'{RegionName}_AppRegionPPF_TrueLepton'] = passLooseWP &  Tau1_VSJet &  Tau2_VSJet & ~mu_iso & MuonIsPromptLepton
-  
+
   if channel == 'Zmu':
       #leptons ID
       mu_iso = tree["Muon_pfRelIso03_all"] <= 0.15
       lep1_iso = tree["Lepton1_pfRelIso03_all"] <= 0.15
       lep2_iso = tree["Lepton2_pfRelIso03_all"] <= 0.15
+      Zcut = Z_cut_OSSF(tree, 'Lepton1', 'Lepton2')
       dr_l1_l2 = delta_R(tree, 'Lepton1', 'Lepton2') > 0.5
       m_MET_mu_cut = compute_invariant_mass_MET_lepton(tree, 'Muon') <= 50
       m_l1_l2_l3_cut = Z_cut_l1l2l3(tree, 'Lepton1', 'Lepton2', 'Muon', interval = 10.)
@@ -514,19 +527,19 @@ def compute_region_mask(tree, channel, type, RegionName):
       #pairEvents = tree["event"]%2 == 0
 
       if RegionName == 'All':
-        LooseCut   = (tree["Muon_pfRelIso03_all"]  <= 0.4) 
+        LooseCut   = (tree["Muon_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & ~Zcut & dr_l1_l2 
 
       # if RegionName == 'DYRegion':
       #   LooseCut   = (tree["Muon_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & dr_l1_l2 & m_MET_mu_cut & m_l1_l2_l3_cut 
 
       if RegionName == 'DYRegionFR':
-        LooseCut   = (tree["Muon_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & dr_l1_l2 & m_MET_mu_cut & m_l1_l2_l3_cut & no_bjets
+        LooseCut   = (tree["Muon_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & ~Zcut & dr_l1_l2 & m_MET_mu_cut & m_l1_l2_l3_cut & no_bjets
 
       # if RegionName == 'DYRegionValidationBis':
       #   LooseCut   = (tree["Muon_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & dr_l1_l2 & m_MET_mu_cut & m_l1_l2_l3_cut & ~no_bjets
 
       if RegionName == 'DYRegionValidation':
-        LooseCut   = (tree["Muon_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & dr_l1_l2 & met_cut & ~no_bjets
+        LooseCut   = (tree["Muon_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & ~Zcut & dr_l1_l2 & met_cut & ~no_bjets
 
       passLooseWP = LooseCut
       passTightWP = passLooseWP & mu_iso 
@@ -541,12 +554,15 @@ def compute_region_mask(tree, channel, type, RegionName):
         cut_region[f'{RegionName}_PassLooseWP_MuonIsPromptLepton'] = passLooseWP & MuonIsPromptLepton
         cut_region[f'{RegionName}_PassTightWP_MuonIsPromptLepton'] = passTightWP & MuonIsPromptLepton
         cut_region[f'{RegionName}_PassLooseNotTightWP_MuonIsPromptLepton'] = passLooseNotTightWP & MuonIsPromptLepton  
+        cut_region[f'{RegionName}_PassLooseNotTightWP_MuonIsNotPromptLepton'] = passLooseNotTightWP & ~MuonIsPromptLepton  
+        cut_region[f'{RegionName}_PassLooseWP_MuonIsNotPromptLepton'] = passLooseWP & ~MuonIsPromptLepton  
 
   if channel == 'Ze':
       #leptons ID
       e_iso = tree["Electron_pfRelIso03_all"]  <= 0.15
       lep1_iso = tree["Lepton1_pfRelIso03_all"] <= 0.15
       lep2_iso = tree["Lepton2_pfRelIso03_all"] <= 0.15
+      Zcut = Z_cut_OSSF(tree, 'Lepton1', 'Lepton2')
       dr_l1_l2 = delta_R(tree, 'Lepton1', 'Lepton2') > 0.5
       m_MET_e_cut = compute_invariant_mass_MET_lepton(tree, 'Electron') <= 50
       m_l1_l2_l3_cut = Z_cut_l1l2l3(tree, 'Lepton1', 'Lepton2', 'Electron', interval = 10.)
@@ -555,19 +571,19 @@ def compute_region_mask(tree, channel, type, RegionName):
       #pairEvents = tree["event"]%2 == 0
 
       if RegionName == 'All':
-        LooseCut   = (tree["Electron_pfRelIso03_all"]  <= 0.4) 
+        LooseCut   = (tree["Electron_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & ~Zcut & dr_l1_l2
 
       # if RegionName == 'DYRegion':
       #   LooseCut   = (tree["Electron_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & dr_l1_l2 & m_MET_e_cut & m_l1_l2_l3_cut
 
       if RegionName == 'DYRegionFR':
-        LooseCut   = (tree["Electron_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & dr_l1_l2 & m_MET_e_cut & m_l1_l2_l3_cut & no_bjets
+        LooseCut   = (tree["Electron_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & ~Zcut & dr_l1_l2 & m_MET_e_cut & m_l1_l2_l3_cut & no_bjets
 
       # if RegionName == 'DYRegionValidationBis':
       #   LooseCut   = (tree["Electron_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & dr_l1_l2 & m_MET_e_cut & m_l1_l2_l3_cut & ~no_bjets
 
       if RegionName == 'DYRegionValidation':
-        LooseCut   = (tree["Electron_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & dr_l1_l2 & met_cut & ~no_bjets
+        LooseCut   = (tree["Electron_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & ~Zcut & dr_l1_l2 & met_cut & ~no_bjets
 
       passLooseWP = LooseCut
       passTightWP = passLooseWP & e_iso 
@@ -582,6 +598,8 @@ def compute_region_mask(tree, channel, type, RegionName):
         cut_region[f'{RegionName}_PassLooseWP_ElectronIsPromptLepton'] = passLooseWP & ElectronIsPromptLepton
         cut_region[f'{RegionName}_PassTightWP_ElectronIsPromptLepton'] = passTightWP & ElectronIsPromptLepton
         cut_region[f'{RegionName}_PassLooseNotTightWP_ElectronIsPromptLepton'] = passLooseNotTightWP & ElectronIsPromptLepton
+        cut_region[f'{RegionName}_PassLooseNotTightWP_ElectronIsNotPromptLepton'] = passLooseNotTightWP & ~ElectronIsPromptLepton
+        cut_region[f'{RegionName}_PassLooseWP_ElectronIsNotPromptLepton'] = passLooseWP & ~ElectronIsPromptLepton
 
   if channel == 'tll':
       #leptons ID
@@ -627,6 +645,8 @@ def compute_region_mask(tree, channel, type, RegionName):
           cut_region[f'{RegionName}_PassLooseWP_TauIsPromptLepton'] = passLooseWP & TauIsPromptLepton
           cut_region[f'{RegionName}_PassTightWP_TauIsPromptLepton'] = passTightWP & TauIsPromptLepton
           cut_region[f'{RegionName}_PassLooseNotTightWP_TauIsPromptLepton'] = passLooseNotTightWP & TauIsPromptLepton
+          cut_region[f'{RegionName}_PassLooseNotTightWP_TauIsNotPromptLepton'] = passLooseNotTightWP & ~TauIsPromptLepton
+          cut_region[f'{RegionName}_PassLooseWP_TauIsNotPromptLepton'] = passLooseWP & ~TauIsPromptLepton
 
   if channel == 'llmu':
       #leptons ID
@@ -640,7 +660,7 @@ def compute_region_mask(tree, channel, type, RegionName):
       Z_cut_l1l2Muon = Z_cut_l1l2l3(tree, 'Lepton1', 'Lepton2', 'Muon', interval = 10.)
 
       if RegionName == 'All':
-        LooseCut   = (tree["Muon_pfRelIso03_all"]  <= 0.4)
+        LooseCut   = (tree["Muon_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & dr_l1_l2 & ~no_bjets
 
       if RegionName == 'ttbarRegionFR':
         LooseCut   = (tree["Muon_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & dr_l1_l2 & ~no_bjets & Z_cut_l2Muon & MET_gt50
@@ -660,7 +680,9 @@ def compute_region_mask(tree, channel, type, RegionName):
         MuonIsPromptLepton =   (tree["Muon_genPartFlav"]  == 1) | (tree["Muon_genPartFlav"]  == 15)
         cut_region[f'{RegionName}_PassLooseWP_MuonIsPromptLepton'] = passLooseWP & MuonIsPromptLepton
         cut_region[f'{RegionName}_PassTightWP_MuonIsPromptLepton'] = passTightWP & MuonIsPromptLepton
-        cut_region[f'{RegionName}_PassLooseNotTightWP_MuonIsPromptLepton'] = passLooseNotTightWP & MuonIsPromptLepton 
+        cut_region[f'{RegionName}_PassLooseNotTightWP_MuonIsPromptLepton'] = passLooseNotTightWP & MuonIsPromptLepton
+        cut_region[f'{RegionName}_PassLooseNotTightWP_MuonIsNotPromptLepton'] = passLooseNotTightWP & ~MuonIsPromptLepton
+        cut_region[f'{RegionName}_PassLooseWP_MuonIsNotPromptLepton'] = passLooseWP & ~MuonIsPromptLepton
 
   if channel == 'lle':
       #leptons ID
@@ -674,7 +696,7 @@ def compute_region_mask(tree, channel, type, RegionName):
       Z_cut_l1l2Electron = Z_cut_l1l2l3(tree, 'Lepton1', 'Lepton2', 'Electron', interval = 10.)
 
       if RegionName == 'All':
-        LooseCut   = (tree["Electron_pfRelIso03_all"]  <= 0.4)
+        LooseCut   = (tree["Electron_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & dr_l1_l2 & ~no_bjets
 
       if RegionName == 'ttbarRegionFR':
         LooseCut   = (tree["Electron_pfRelIso03_all"]  <= 0.4) & lep1_iso & lep2_iso & dr_l1_l2 & ~no_bjets & Z_cut_l1Electron & MET_gt50
@@ -696,5 +718,7 @@ def compute_region_mask(tree, channel, type, RegionName):
         cut_region[f'{RegionName}_PassLooseWP_ElectronIsPromptLepton'] = passLooseWP & ElectronIsPromptLepton
         cut_region[f'{RegionName}_PassTightWP_ElectronIsPromptLepton'] = passTightWP & ElectronIsPromptLepton
         cut_region[f'{RegionName}_PassLooseNotTightWP_ElectronIsPromptLepton'] = passLooseNotTightWP & ElectronIsPromptLepton
+        cut_region[f'{RegionName}_PassLooseNotTightWP_ElectronIsNotPromptLepton'] = passLooseNotTightWP & ~ElectronIsPromptLepton
+        cut_region[f'{RegionName}_PassLooseWP_ElectronIsNotPromptLepton'] = passLooseWP & ~ElectronIsPromptLepton
 
   return cut_region

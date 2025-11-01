@@ -56,14 +56,14 @@ ana_text:
   align: left_bottom
 
 cms_text:
-  text: "CMS"
+  text: "CMS data/simulation"
   pos_ref: inner_left_top
   pos: [0.03, 0.03 ]
-  text_size: 0.055
+  text_size: 0.04
   font: 61
 
 scope_text:
-  text: "Unpublished"
+  text: "Private work"
   pos_ref: cms_text
   pos: [ 0, -0.1 ]
   text_size: 0.04

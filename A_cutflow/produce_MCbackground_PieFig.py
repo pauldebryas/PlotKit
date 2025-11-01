@@ -3,9 +3,9 @@ from A_cutflow.helpers import save_sumwEvents, plot_pieFig
 
 #parameters -----------------------------------------------------------------------------------------------------
 #period = period of data taking
-period = '2016_HIPM'
+period = '2018'
 #tag = tag used for anatuple production
-tag = 'AddJETcorr'
+tag = 'FinalProd'
 #region_name = region where MC background is studied
 region_name = 'SignalRegion'
 #----------------------------------------------------------------------------------------------------------------
