@@ -6,8 +6,9 @@ from common.helpers import get_hnl_masses
 
 # can be took from ssh://cern/afs/cern.ch/user/p/pdebryas/HNL_analysis/Analysis/LimitEstimation/CMSSW_11_3_4/src/HNLAnalysis/config.ini
 tag = 'FinalProd'
-period = '2016_HIPM'
-channels = ['tee','tmm','tem','tte','ttm']
+period = '2018'
+# channels = ['tee','tmm','tem','tte','ttm', 'tee_ss','tee_os','tmm_ss','tmm_os']
+channels = ['tee_ss','tee_os','tmm_ss','tmm_os']
 plot_fig = False
 
 def var_from_channel(channel):

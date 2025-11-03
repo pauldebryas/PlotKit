@@ -46,7 +46,47 @@ lepton:
     lepton3:
       name: 'Muon2'
       type: 'Muon'
+  tmm_ss:
+    lepton1:
+      name: 'Tau'
+      type: 'Tau'
+    lepton2:
+      name: 'Muon1'
+      type: 'Muon'
+    lepton3:
+      name: 'Muon2'
+      type: 'Muon'
+  tmm_os:
+    lepton1:
+      name: 'Tau'
+      type: 'Tau'
+    lepton2:
+      name: 'Muon1'
+      type: 'Muon'
+    lepton3:
+      name: 'Muon2'
+      type: 'Muon'
   tee:
+    lepton1:
+      name: 'Tau'
+      type: 'Tau'
+    lepton2:
+      name: 'Electron1'
+      type: 'Electron'
+    lepton3:
+      name: 'Electron2'
+      type: 'Electron'
+  tee_ss:
+    lepton1:
+      name: 'Tau'
+      type: 'Tau'
+    lepton2:
+      name: 'Electron1'
+      type: 'Electron'
+    lepton3:
+      name: 'Electron2'
+      type: 'Electron'
+  tee_os:
     lepton1:
       name: 'Tau'
       type: 'Tau'

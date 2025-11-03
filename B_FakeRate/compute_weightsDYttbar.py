@@ -6,26 +6,42 @@ from common.helpers import load_ntuples, dict_files
 from common.regions.regions import compute_region_mask
 
 # parameters -----------------------------------------------------------------------------------------------------
-period = '2018'
+period = '2017'
 tag = 'FinalProd'
-region_name = 'InvertedBjetsVetoRegion'  # SignalRegion or InvertedBjetsVetoRegion or ControlRegion
+region_name = 'SignalRegion'  # SignalRegion or InvertedBjetsVetoRegion or ControlRegion
 # ----------------------------------------------------------------------------------------------------------------
 
-channels = ['tee', 'tmm', 'tem', 'ttm', 'tte']
+#channels = ['tee', 'tmm', 'tem', 'ttm', 'tte', 'tee_ss', 'tee_os', 'tmm_ss', 'tmm_os']
+channels = ['tee_ss','tee_os', 'tmm_ss','tmm_os']
 
 # Define flavors, masks, and valid channels
+# flavors = {
+#     "Tau": {
+#         "mask": f"{region_name}_FtauAR_NotTrueLeptons",
+#         "channels": ['tee', 'tmm', 'tem', 'ttm', 'tte', 'tee_ss', 'tee_os', 'tmm_ss', 'tmm_os']
+#     },
+#     "Muon": {
+#         "mask": f"{region_name}_FmuAR_NotTrueLeptons",
+#         "channels": ['tmm', 'tem', 'ttm', 'tmm_ss', 'tmm_os']
+#     },
+#     "Electron": {
+#         "mask": f"{region_name}_FeAR_NotTrueLeptons",
+#         "channels": ['tee', 'tem', 'tte', 'tee_ss', 'tee_os']
+#     }
+# }
+
 flavors = {
     "Tau": {
         "mask": f"{region_name}_FtauAR_NotTrueLeptons",
-        "channels": ['tee', 'tmm', 'tem', 'ttm', 'tte']
+        "channels": ['tee_ss','tee_os', 'tmm_ss','tmm_os']
     },
     "Muon": {
         "mask": f"{region_name}_FmuAR_NotTrueLeptons",
-        "channels": ['tmm', 'tem', 'ttm']
+        "channels": ['tmm_ss','tmm_os']
     },
     "Electron": {
         "mask": f"{region_name}_FeAR_NotTrueLeptons",
-        "channels": ['tee', 'tem', 'tte']
+        "channels": ['tee_ss','tee_os']
     }
 }
 

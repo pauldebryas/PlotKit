@@ -3,14 +3,15 @@ from A_cutflow.helpers import save_sumwEvents, plot_pieFig
 
 #parameters -----------------------------------------------------------------------------------------------------
 #period = period of data taking
-period = '2018'
+period = '2017'
 #tag = tag used for anatuple production
 tag = 'FinalProd'
 #region_name = region where MC background is studied
 region_name = 'SignalRegion'
 #----------------------------------------------------------------------------------------------------------------
 
-channels = ['tee','ttm', 'tte','tmm','tem']
+#channels = ['tee','ttm', 'tte','tmm','tem','tee_ss','tee_os', 'tmm_ss','tmm_os']
+channels = ['tmm_ss','tmm_os', 'tee_ss','tee_os']
 
 output_path_results = os.path.join(os.getenv("RUN_PATH"),f'A_cutflow/results/{tag}/{period}/')
 if not os.path.exists(output_path_results):

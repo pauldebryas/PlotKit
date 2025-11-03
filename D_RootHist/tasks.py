@@ -78,7 +78,7 @@ class MakeTH1Hist(Task, HTCondorWorkflow, law.LocalWorkflow):
         if self.period not in ['2018','2017','2016','2016_HIPM']:
             raise "period parameter not valid"
         
-        if self.channel not in ['ttm', 'tmm', 'tte', 'tee', 'tem', 'Zmu', 'Ze', 'tll', 'llmu', 'lle']:
+        if self.channel not in ['ttm', 'tmm', 'tte', 'tee', 'tem', 'Zmu', 'Ze', 'tll', 'llmu', 'lle', 'tee_ss', 'tee_os', 'tmm_ss', 'tmm_os']:
             raise "channel parameter not valid"
         
         if self.channel in ['Zmu', 'Ze', 'llmu', 'lle']:
@@ -210,11 +210,23 @@ class RunCMSPlot(Task, HTCondorWorkflow, law.LocalWorkflow):
         if self.channel == 'tmm':
             self.custom_title ="cat_text=#tau_{h}#mu#mu"
 
+        if self.channel == 'tmm_ss':
+            self.custom_title ="cat_text=#tau_{h}#mu^{#pm}#mu^{#pm}"
+
+        if self.channel == 'tmm_os':
+            self.custom_title ="cat_text=#tau_{h}#mu^{#pm}#mu^{#mp}"
+
         if self.channel == 'tte':
             self.custom_title ="cat_text=#tau_{h}#tau_{h} e"
 
         if self.channel == 'tee':
             self.custom_title ="cat_text=#tau_{h} e e"
+
+        if self.channel == 'tee_ss':
+            self.custom_title ="cat_text=#tau_{h} e^{#pm} e^{#pm}"
+
+        if self.channel == 'tee_os':
+            self.custom_title ="cat_text=#tau_{h} e^{#pm} e^{#mp}"
 
         if self.channel == 'tem':
             if self.PlotRegion == 'ttbarRegionFR':

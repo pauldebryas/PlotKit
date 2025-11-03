@@ -4,10 +4,11 @@ import os
 import glob
 
 # Parameters
-period = "2016_HIPM"
+period = "2018"
 tag = "FinalProd"
 
-channels = ['tte', 'ttm', 'tee', 'tmm', 'tem']
+# channels = ['tte', 'ttm', 'tee', 'tmm', 'tem']
+channels = ['tee_ss','tee_os','tmm_ss','tmm_os']
 
 base_path = f"D_RootHist/results/{period}/{tag}"
 

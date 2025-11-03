@@ -6,11 +6,12 @@ from array import array
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 
 tag = 'FinalProd'
-period = 'All' # 'All' if all year combined, else '2018', ...
+period = '2018' # 'All' if all year combined, else '2018', ...
 
 # MAIN
 def main():
-    channels = ['tee','tmm','tte','ttm','tem']
+    # channels = ['tee','tmm','tte','ttm','tem']
+    channels = ['tee_ss','tee_os','tmm_ss','tmm_os']
     BDV = {} #BDV[HNL_mass][channel]
 
     for channel in channels:

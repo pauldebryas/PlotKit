@@ -291,6 +291,10 @@ def AddOSLepton(branches, channel):
   return branches
 
 def AddDNNscore(branches, channel, MassHNL_Hyp, period):
+  if channel in ['tee_ss', 'tee_os']:
+    channel = 'tee'
+  if channel in ['tmm_ss', 'tmm_os']:
+    channel = 'tmm'
   # load score:
   json_file = f'/eos/user/p/pdebryas/HNL/DNNscore/{period}/{ModelName}/DNNscore_M{MassHNL_Hyp}.json'
   with open(json_file, 'r') as file:
@@ -587,7 +591,12 @@ def apply_FR_method(FR, FR_err, branches, channel, hist_name, cutRegion, PlotReg
 def AddFakeFactorsUnc(hists, channel, period, x_bins, Fakes, Weights, Weights_syst, bins_syst, is_flow):
   print(f' ... Add hist for FakeFactorsUnc for {channel} ...')
   nbins = len(bins_syst['lepton1']) # should be the same for all leptons
-  if channel == 'tee':
+
+  if channel not in ['tee', 'tee_ss', 'tee_os', 'tmm', 'tmm_ss', 'tmm_os', 'tem', 'tte', 'ttm']:
+    print(f'missing channel {channel}')
+    raise
+  
+  if channel in ['tee', 'tee_ss', 'tee_os']:
     for ud in ['Up', 'Down']:
       hists[f'FakeBackground_statFakeFactorsTau{period}{ud}'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
       hists[f'FakeBackground_statFakeFactorsTau{period}{ud}'].fill(x= Fakes, weight=Weights[f'l1_err{ud}'])
@@ -602,7 +611,7 @@ def AddFakeFactorsUnc(hists, channel, period, x_bins, Fakes, Weights, Weights_sy
         hists[f"FakeBackground_systFakeFactorsElectronPt{bins_syst['lepton2'][i]}to{bins_syst['lepton2'][i+1]}Bin{i}{period}{ud}"] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
         hists[f"FakeBackground_systFakeFactorsElectronPt{bins_syst['lepton2'][i]}to{bins_syst['lepton2'][i+1]}Bin{i}{period}{ud}"].fill(x= Fakes, weight=Weights_syst['lepton2'][i][ud]*Weights_syst['lepton3'][i][ud]*Weights['nom'])
           
-  if channel == 'tmm':
+  if channel in ['tmm', 'tmm_ss', 'tmm_os']:
     for ud in ['Up', 'Down']:
       hists[f'FakeBackground_statFakeFactorsTau{period}{ud}'] = hist.Hist.new.Variable(x_bins, name='x', flow=is_flow).Weight()
       hists[f'FakeBackground_statFakeFactorsTau{period}{ud}'].fill(x= Fakes, weight=Weights[f'l1_err{ud}'])

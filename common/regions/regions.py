@@ -11,7 +11,7 @@ def compute_region_mask(tree, channel, type, RegionName):
 
   Tau_VSJet_cut = 6 #DeepTau2018v2p5VSjet ID working points (deepTau2018v2p5): 1 = VVVLoose, 2 = VVLoose, 3 = VLoose, 4 = Loose, 5 = Medium, 6 = Tight, 7 = VTight, 8 = VVTight
 
-  if channel == 'tmm':
+  if channel in ['tmm', 'tmm_ss', 'tmm_os']:
       #leptons ID
       mu1_iso = tree["Muon1_pfRelIso03_all"] <= 0.15 
       mu2_iso = tree["Muon2_pfRelIso03_all"] <= 0.15
@@ -27,7 +27,7 @@ def compute_region_mask(tree, channel, type, RegionName):
       MET_lt50 = MET_cut(tree,  50., True)
       IMlightLepton_gt20 = mass_l1l2(tree, 'Muon1', 'Muon2') >= 20.
       MET_gt70 = MET_cut(tree,  70., False)
-
+      
       if RegionName == 'SignalRegion':
         passLooseWP = no_samesign & met_cut & Zcut & LowMasscut & no_bjets 
         passTightWP = passLooseWP & Tau_VSJet & mu1_iso & mu2_iso
@@ -130,7 +130,7 @@ def compute_region_mask(tree, channel, type, RegionName):
             cut_region[f'{RegionName}_AppRegionPFP_TrueLepton'] = passLooseWP &  Tau_VSJet & ~mu1_iso &  mu2_iso & Muon1IsPromptLepton
             cut_region[f'{RegionName}_AppRegionPPF_TrueLepton'] = passLooseWP &  Tau_VSJet &  mu1_iso & ~mu2_iso & Muon2IsPromptLepton
 
-  if channel == 'tee':
+  if channel in ['tee', 'tee_ss', 'tee_os']:
       #leptons ID
       e1_iso = tree["Electron1_pfRelIso03_all"]  <= 0.15
       e2_iso = tree["Electron2_pfRelIso03_all"]  <= 0.15
